@@ -6,12 +6,14 @@ if(!$_SESSION['user']) {
     Router::redirect('/');
 }
 
+$code = $_GET['code'];
 $id_contract = $_GET["idc"];
 $id_object = $_GET["ido"];
 $code_adm = $_GET['cda'];
 require('vendor/db.php');
 $contract = mysqli_query($db, "SELECT * FROM `contracts` WHERE `id_contract` = '$id_contract'");
 $contract = mysqli_fetch_assoc($contract);
+$datas = [];
 ?>
 
 <!DOCTYPE html>
@@ -38,23 +40,57 @@ $contract = mysqli_fetch_assoc($contract);
                 </form>
             </div>
         </div>
-        <form class="mt-4" action="./contract/update" method="post" enctype="multipart/form-data">
+        <form class="mt-4" action="/contract/update" method="post" enctype="multipart/form-data">
             <input type="hidden" name="id_contract" value="<?=$contract['id_contract']?>">
             <input type="hidden" name="object_id" value="<?=$id_object?>">
+            <div class="mb-2">
+                <label for="code_adm" class="form-label">Район</label>
+                <select name="code_adm" id="code_adm" class="form-control">
+                    <option value="20" <?php if($code == 20) echo "selected"?>>Гомель</option>
+                    <option value="30" <?php if($code == 30) echo "selected"?>>Ветка</option>
+                    <option value="32" <?php if($code == 32) echo "selected"?>>Чечерск</option>
+                    <option value="33" <?php if($code == 33) echo "selected"?>>Добруш</option>
+                    <option value="34" <?php if($code == 34) echo "selected"?>>Жлобин</option>
+                    <option value="36" <?php if($code == 36) echo "selected"?>>Буда-Кошелево</option>
+                    <option value="37" <?php if($code == 37) echo "selected"?>>Корма</option>
+                    <option value="39" <?php if($code == 39) echo "selected"?>>Рогачев</option>
+                    <option value="40" <?php if($code == 40) echo "selected"?>>Речица</option>
+                    <option value="42" <?php if($code == 42) echo "selected"?>>Светлогорск</option>
+                    <option value="44" <?php if($code == 44) echo "selected"?>>Брагин</option>
+                    <option value="45" <?php if($code == 45) echo "selected"?>>Калинковичи</option>
+                    <option value="46" <?php if($code == 46) echo "selected"?>>Хойники</option>
+                    <option value="47" <?php if($code == 47) echo "selected"?>>Лоев</option>
+                    <option value="50" <?php if($code == 50) echo "selected"?>>Петриков</option>
+                    <option value="51" <?php if($code == 51) echo "selected"?>>Мозырь</option>
+                    <option value="53" <?php if($code == 53) echo "selected"?>>Житковичи</option>
+                    <option value="54" <?php if($code == 54) echo "selected"?>>Ельск</option>
+                    <option value="55" <?php if($code == 55) echo "selected"?>>Наровля</option>
+                    <option value="56" <?php if($code == 56) echo "selected"?>>Лельчицы</option>
+                    <option value="57" <?php if($code == 57) echo "selected"?>>Октябрьский</option>
+                    <option value="79" <?php if($code == 79) echo "selected"?>>Гомельский РУЭС</option>
+                </select>
+            </div>
             <p class="form-label">Название объекта</p>
-            <div class="form-floating">
+            <div class="form-floating mb-3">
                 <select name="id_object" id="id_object" class="form-select mb-3">
-                    <option value="" selected></option>
+                    <option value=""></option>
+                    <option value="0">Объект не назначен</option>
                     <?php
                         if($id_object){
-                            $datas = \R::getAll("SELECT `id_object`, `object_name` FROM `object` WHERE `code_adm` = '$code_adm' ORDER BY `object_name`");
+                            $query = mysqli_query($db, "SELECT `id_object`, `object_name` FROM `object` WHERE `code_adm` = '$code_adm' ORDER BY `object_name`");
+                            while($row = mysqli_fetch_assoc($query)) {
+                                $datas[] = $row;
+                            }
                             foreach($datas as $key => $data) {
                                 ?>
                                 <option value="<?=$data['id_object']?>" <?php if($data['id_object'] === $id_object) echo "selected"?>><?=$data['object_name']?></option>
                                 <?php
                             }
                         } else {
-                            $datas = \R::getAll("SELECT `id_object`, `object_name` FROM `object` ORDER BY `object_name`");
+                            $query = mysqli_query($db, "SELECT `id_object`, `object_name` FROM `object` ORDER BY `object_name`");
+                            while($row = mysqli_fetch_assoc($query)) {
+                                $datas[] = $row;
+                            }
                             foreach($datas as $key => $data) {
                                 ?>
                                 <option value="<?=$data['id_object']?>"><?=$data['object_name']?></option>
@@ -63,7 +99,7 @@ $contract = mysqli_fetch_assoc($contract);
                         }
                     ?>
                 </select>
-                <label for="id_object">ВЫБЕРИТЕ ОБЪЕКТ К КОТОРОМУ ОТНОСИТСЯ ДОГОВОР</label>
+                <!--<label for="id_object">ВЫБЕРИТЕ ОБЪЕКТ К КОТОРОМУ ОТНОСИТСЯ ДОГОВОР</label>-->
             </div>
             <div class="mb-3">
                 <label for="landlord" class="form-label">Арендодатель</label>
@@ -75,7 +111,7 @@ $contract = mysqli_fetch_assoc($contract);
             </div>
             <div class="mb-3">
                 <label for="landlord_address" class="form-label">Юридический адрес и контакты арендодателя</label>
-                <input type="text" class="form-control" name="landlord_address" id="landlord_address" value="<?=$contract['landlord_address']?>">
+                <textarea type="text" class="form-control" name="landlord_address" id="landlord_address" value="<?=$contract['landlord_address']?>"><?=$contract['landlord_address']?></textarea>
             </div>
             <div class="mb-3">
                 <label for="object" class="form-label">Объект</label>
@@ -141,17 +177,11 @@ $contract = mysqli_fetch_assoc($contract);
                 <label for="part" class="form-label">Доля, %</label>
                 <input type="text" class="form-control" name="part" id="part" value="<?=$contract['part']?>">
             </div>
-            <input type="hidden" name="old_id" value="<?=$id_object?>">
             <button type="submit" class="btn btn-primary mb-3">Сохранить</button>          
-            <a href="/ELECTRO/contracts" class="btn btn-secondary mb-3">Закрыть</a>
+            <a href="/contracts" class="btn btn-secondary mb-3">Закрыть</a>
         </form>
     </div>
 </body>
-
-
-
-</html>
-
 
 <script src="http://electro.gmltelecom.int/libs/select2/select2.min.js"></script>
 <script>
@@ -160,3 +190,8 @@ $contract = mysqli_fetch_assoc($contract);
         allowClear: true
     });
 </script>
+
+<?php mysqli_close($db); ?>
+
+
+</html>

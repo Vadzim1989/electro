@@ -3,35 +3,34 @@
 namespace App\Controllers;
 
 use App\Services\Router;
+use mysqli;
 
 class Auth {
 
     public function login($data) 
     {
+        require_once('vendor/db.php');
+
         $login = $data['login'];
         $password = $data['password'];
 
-        $user = \R::findOne('users', 'login = ?', [$login]);
+        $user = mysqli_query($db, "SELECT * FROM `users` WHERE `login` = '$login'");
+        $user = mysqli_fetch_assoc($user);
+        mysqli_close($db);
 
         if(!$user) {
             Router::redirect('/login');
         }
 
-        if(password_verify($password, $user->password) || $password == $user->password) {
+        if(password_verify($password, $user['password']) || $password == $user['password']) {
             session_start();
             $_SESSION["user"] = [
-                "id" => $user->id,
-                "full_name" => $user->full_name,
-                "group" => $user->group,
-                "login" => $user->login,
-                "zues" => $user->zues,
-                "counter" => false,
-                "contract" => false,
-                'data' => true
+                "id" => $user['id'],
+                "full_name" => $user['full_name'],
+                "group" => $user['group'],
+                "login" => $user['login'],
+                "counter" => false
             ];
-            if(date('d')>15) {
-                $_SESSION['user']['data'] = false;
-            }
             Router::redirect('/');
         } else {
             Router::redirect_wrong('/login');
@@ -40,62 +39,81 @@ class Auth {
 
     public function register($data) 
     {
+        require_once('vendor/db.php');
+
         $login = $data['login'];
         $full_name = $data['full_name'];
         $password = $data['password'];
-        $password_confirm = $data['password_confirm'];
         $group = is_null($data['group']) ? 1 : $data['group'];
-        $zues = $data['zues'];
 
-        if($password !== $password_confirm) {
-            Router::error(500);
-            die();
+        $password = password_hash($password, PASSWORD_DEFAULT);
+
+        $checkLogin = mysqli_query($db, "SELECT `login` FROM `users` WHERE `login` = '$login'");
+        $checkLogin = mysqli_fetch_assoc($checkLogin);
+
+        if(isset($checkLogin['login']) && $checkLogin['login'] == $login) {
+            mysqli_close($db);
+            echo "<script>alert('Пользователь с таким логинов уже существует'); window.location.href = '/admin'</script>";
+        } else {
+            mysqli_query($db, "INSERT INTO `users`(`id`, `login`, `full_name`, `password`, `group`) VALUES(NULL, '$login', '$full_name', '$password', '$group')");
+            mysqli_close($db);
+            Router::redirect('/admin');
         }
-        $user = \R::dispense('users');
-        $user->login = $login;
-        $user->full_name = $full_name;
-        /**
-         * 1 - пользователь
-         * 2 - админ
-         */
-        $user->group = $group;
-        $user->zues = $zues;
-        $user->password = password_hash($password, PASSWORD_DEFAULT);
-        \R::store($user);
-        Router::redirect('/admin');
+        
+        
+
+        
     }
 
     public function userInfo($data) {
+        require_once('vendor/db.php');
+
         $id = $data['id'];
         $name = $data['name'];
         $login = $data['login'];
-        $code_adm = $data['code_adm'];
 
-        $user = \R::load('users', $id);
-        $user->full_name = $name;
-        $user->login = $login;
-        $user->zues = $code_adm;
+        mysqli_query($db, "UPDATE `users` SET `full_name` = '$name', `login` = '$login' WHERE `id` = '$id'");
+        mysqli_close($db);
 
-        \R::store($user);
         Router::redirect('/admin');
     }
 
     public function update($data)
     {
+        require_once('vendor/db.php');
+
         $id = $data["id"];
-        $user = \R::load('users', $id);
-        $user->password = password_hash(111111, PASSWORD_DEFAULT);
-        \R::store($user);
+        $password = password_hash(111111, PASSWORD_DEFAULT);
+
+        mysqli_query($db, "UPDATE `users` SET `password` = '$password' WHERE `id` = '$id'");
+        mysqli_close($db);
+
+        Router::redirect('/admin');
+    }
+
+    public function delete($data) 
+    {
+        require_once('vendor/db.php');
+
+        $id = $data['id'];
+
+        mysqli_query($db, "DELETE FROM `users` WHERE `id` = '$id'");
+        mysqli_close($db);
+
         Router::redirect('/admin');
     }
 
     public function userUpdate($data)
     {
+        require_once('vendor/db.php');
+
         $id = $data["id"];
-        $user = \R::load('users', $id);
-        $user->password = password_hash(111111, PASSWORD_DEFAULT);
-        \R::store($user);
-        Router::redirect('/profile');
+        $password = password_hash($data['password'], PASSWORD_DEFAULT);
+
+        mysqli_query($db, "UPDATE `users` SET `password` = '$password' WHERE `id` = '$id'");
+        mysqli_close($db);
+        
+        Router::redirect('/login');
     }
 
     public function logout() 

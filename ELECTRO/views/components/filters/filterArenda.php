@@ -1,39 +1,18 @@
-<?php
-
-use App\Services\Page;
-use App\Services\Router;
-if(!$_SESSION['user']) {
-    Router::redirect('/');
-}
-require_once('vendor/db.php');
-$query = mysqli_query($db, "SELECT c.`id_contract`, c.`landlord`, c.`unp`, c.`landlord_address`, c.`object`, c.`equip_address`, c.`contract_num`, c.`contract_start`, c.`contract_end`, c.`landlord_area`, c.`wall`, c.`length`, c.`bav`, c.`byn`, c.`nds`, c.`pay_attribute`, c.`pay_date`, c.`comments`, c.`area`, c.`part`, oc.`id_object`, o.`object_name`, o.`code_adm` FROM `contracts` c LEFT JOIN `object_contracts` oc ON (c.`id_contract` = oc.`id_contract`) LEFT JOIN `object` o ON (oc.`id_object` = o.`id_object`)");
-$datas = [];
-while($row = mysqli_fetch_assoc($query)) {
-    $datas[] = $row;
-}
-mysqli_close($db);
-?>
-
-<!DOCTYPE html>
-<html lang="en">
-<?php Page::part('head'); 
-?>
-
-<style>
-    table > thead > tr > th {
-        font-size: small;
-        text-align: center;
-    }
-    table > tbody > tr > td {
-        font-size: small;
-    }
-</style>
-
-<body>
-    <?php Page::part('navbar'); ?>
-    <table class="table table-striped">
+<table class="table table-striped">
         <thead>
                 <tr>
+                    <th rowspan="2" class="align-middle">
+                        <form action="./excel/filterArenda" method="post" enctype="multipart/form-data">
+                            <input type="hidden" name="sort" value="<?=$sort?>">
+                            <input type="hidden" name="data" value="<?=$choice?>">
+                            <input type="hidden" name="contract" value="<?=$num?>">
+                            <input type="hidden" name="area" value="<?=$area?>">
+                            <input type="hidden" name="address" value="<?=$address?>">
+                            <input type="hidden" name="code_adm" value="<?=$code_adm?>">
+                            <button title="Excel" class="btn" type="submit">&#128196</button>
+                        </form>    
+                        Район
+                    </th>
                     <th rowspan="2" class="align-middle">Принадлежность к объекту</th>
                     <th rowspan="2" class="align-middle">
                         <form class="d-flex" action="/search" method="post" role="search">
@@ -53,9 +32,7 @@ mysqli_close($db);
                     <th rowspan="2" class="align-middle">
                         <a class="btn btn-primary me-2" title="Добавить договор" href="/arendaadd">&#10010</a>
                     </th>
-                    <th rowspan="2" class="align-middle">
-                        <button type="button" title="Фильтр" class="btn btn-outline-primary ms-3" data-bs-toggle="modal" data-bs-target="#filter">&#128269</button>
-                    </th>
+                    <th rowspan="2" class="align-middle"><a class="btn btn-outline-primary" title="Сбросить фильтр" href="/contracts">&#10006</a></th>
                 </tr>
                 <tr>
                     <th>заключения</th>
@@ -68,7 +45,8 @@ mysqli_close($db);
                     # code...
                     ?>
                         <tr>
-                            <td class="align-middle text-center"><?= $data["object_name"] ?></td>
+                            <td class="align-middle arenda-code-adm"><?= $data["rues"] ?></td>
+                            <td class="align-middle"><?= $data["object_name"] ?></td>
                             <td class="align-middle"><?= $data["landlord"] ?></td>
                             <td class="align-middle fw-bold"><?= $data["unp"] ?></td>
                             <td class="align-middle"><?= $data["landlord_address"] ?></td>
@@ -78,23 +56,16 @@ mysqli_close($db);
                             <td class="align-middle text-center"><?= $data["contract_start"] ?></td>
                             <td class="align-middle text-center"><?= $data["contract_end"] ?></td>
                             <td class="align-middle text-center" colspan="2">
-                                <a class="btn btn-outline-success" title="Подробнее" href="/arenda?idc=<?=$data['id_contract']?>&ido=<?=$data['id_object']?>&cda=<?=$data['code_adm']?>">&#9997</a>
+                                <a class="btn btn-outline-success" title="Подробнее" href="/arenda?idc=<?=$data['id_contract']?>&ido=<?=$data['id_object']?>&cda=<?=$data['code_adm']?>&code=<?=$data['code']?>">&#9997</a>
                             </td>
                         </tr>
                     <?php
                 }
             ?>
         </tbody>
-        <tfoot class="sticky-bottom bg-success-subtle">
+        <tfoot class="sticky-bottom bg-success-subtle" style="z-index: -1;">
             <tr>
-                <td class="text-center" colspan="11"><?=count($datas)?> договоров аренды</td>
+                <td class="text-center" colspan="12"><?=count($datas)?> договоров аренды</td>
             </tr>
         </tfoot>
     </table>
-    <?php
-        include('views/modal/modalForNavbar.php');
-        include('views/modal/modalForContracts.php');
-    ?>
-</body>
-
-</html>

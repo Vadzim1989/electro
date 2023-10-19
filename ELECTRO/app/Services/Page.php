@@ -9,7 +9,11 @@ class Page {
      */
 
     public static function part($part_name) {
-        require_once("views/components/" . $part_name . ".php");
+        require("./views/components/" . $part_name . ".php");
+    }
+
+    public static function modal($modal_name) {
+        require("./views/modal/" . $modal_name . ".php");
     }
 
     public static function pages($page) {

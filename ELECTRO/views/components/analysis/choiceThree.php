@@ -1,4 +1,4 @@
-<h2 class="text-center" style="background: #E3E3E3;">Арендуемые объекты</h2>
+<h2 class="text-center analis-name">Арендуемые объекты</h2>
 <table class="table table-striped device-table">
     <thead>
         <tr>
@@ -13,7 +13,7 @@
             <th>Арендная плата (руб.)</th>
             <th>
                 <form action="./excel/analisArenda" method="post" enctype="multipart/form-data">                    
-                    <button class="btn" type="submit">&#128196</button>
+                    <button title="Excel" class="btn" type="submit">&#128196</button>
                 </form>
             </th>
         </tr>
@@ -31,7 +31,7 @@
                     <td><?=$data['contract_start']?></td>
                     <td><?=$data['contract_end']?></td>
                     <td><?=$data['landlord_area']?></td>
-                    <td colspan="2"><?=$data['byn']?></td>
+                    <td colspan="2" class="text-center"><?=$data['byn']?></td>
                 </tr>
                 <?php
             }

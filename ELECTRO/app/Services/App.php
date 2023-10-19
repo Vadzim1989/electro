@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Services;
 
 class App {
@@ -9,8 +8,8 @@ class App {
      */
     
     public static function start() {
-        self::libs();
-        self::db();
+        //self::libs();
+        //self::db();
     }
 
     /**
@@ -29,11 +28,11 @@ class App {
      */
 
     public static function db() {
+
         $config = require_once "config/db.php";
         if($config['enable']) {
             \R::setup('mysql:host=' . $config['host'] . ";port=" . $config['port'] . ';dbname=' . $config['db'], $config['username'], $config['password']); // \R - поиск класса RedBeanPhp - глобально
         }
-
         if(!\R::testConnection()) {
             die('Error database connection...');
         }

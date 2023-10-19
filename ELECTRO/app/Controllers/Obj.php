@@ -18,8 +18,10 @@ class Obj {
         $mount = $data["mount"];
         $used = $data["used"];
         $power = $data["power"];
+        $power = str_replace(',','.',$power);
 
         mysqli_query($db, "INSERT INTO `object`(`id_object`, `object_name`, `code_adm`) VALUES (NULL, '$name', '$code_adm')");
+        mysqli_query($db, "INSERT INTO `history_objects`(`object_name`, `user`, `date`, `remark`) VALUES ('$name','".$_SESSION['user']['full_name']."','".date('d-m-Y H:i:s')."', 'add')");
 
         $object = mysqli_query($db, "SELECT * FROM `object` WHERE `object_name` = '$name' AND `code_adm` = '$code_adm'");
         $object = mysqli_fetch_assoc($object);
@@ -29,8 +31,9 @@ class Obj {
         mysqli_query($db, "INSERT INTO `object_address`(`id_object`, `address`) VALUES ('$id_object', '$address')");
         mysqli_query($db, "INSERT INTO `object_mount`(`id_object`, `mount`, `used`, `id_type`) VALUES ('$id_object', '$mount', '$used', NULL)");
         mysqli_query($db, "INSERT INTO `object_power`(`id_object`, `object_power`) VALUES ('$id_object', '$power')");
+        mysqli_close($db);
 
-        Router::redirect('/');
+        Router::redirect('/rues?id='.$code_adm);
     }
 
     public function delete($data)
@@ -38,14 +41,21 @@ class Obj {
         require('vendor/db.php'); 
 
         $id = $data["id_delete"];
-        var_dump($data);
+
+        $object = mysqli_query($db, "SELECT `object_name` FROM `object` WHERE `id_object` = '$id'");
+        $object = mysqli_fetch_assoc($object);
+
+        mysqli_query($db, "INSERT INTO `history_objects`(`object_name`, `user`, `date`, `remark`) VALUES ('".$object['object_name']."','".$_SESSION['user']['full_name']."','".date('d-m-Y H:i:s')."', 'delete')");
 
         mysqli_query($db, "DELETE FROM `object` WHERE `id_object` = '$id'");
         mysqli_query($db, "DELETE FROM `object_address` WHERE `id_object` = '$id'");
         mysqli_query($db, "DELETE FROM `object_mount` WHERE `id_object` = '$id'");
         mysqli_query($db, "DELETE FROM `object_counter` WHERE `id_object` = '$id'");
+        mysqli_query($db, "DELETE FROM `object_counter_arenda` WHERE `id_object` = '$id'");
         mysqli_query($db, "DELETE FROM `object_contracts` WHERE `id_object` = '$id'");
         mysqli_query($db, "DELETE FROM `object_power` WHERE `id_object` = '$id'");
+        mysqli_query($db, "DELETE FROM `object_devices` WHERE `id_object` = '$id'");
+        mysqli_close($db);
 
         Router::redirect('/');
     }
@@ -61,12 +71,10 @@ class Obj {
         $mount = $data["mount"];
         $used = $data["used"];
         $power = $data["power"];
-        $remark = $data['remark'];
+        $power = str_replace(',','.',$power);
 
         if(!$mount) $mount = 0;
         if(!$used) $used = 0;
-        if(!$power) $power = 0;
-
         
         $objectAddress = mysqli_query($db, "SELECT `id_object` FROM `object_address` WHERE `id_object` = '$id_object'");
         $objectAddress = mysqli_fetch_assoc($objectAddress);
@@ -77,7 +85,7 @@ class Obj {
             mysqli_query($db, "INSERT INTO `object_address`(`id_object`, `address`) VALUES ('$id_object', '$address')");
         };
       
-
+        mysqli_query($db, "INSERT INTO `history_objects`(`object_name`, `user`, `date`,`remark`) VALUES ('$object_name','".$_SESSION['user']['full_name']."','".date('d-m-Y H:i:s')."', 'update')");
         mysqli_query($db, "UPDATE `object` SET `code_adm` = '$code_adm', `object_name` = '$object_name' WHERE `id_object` = '$id_object'");
        
         $objectMount = mysqli_query($db, "SELECT `id_object` FROM `object_mount` WHERE `id_object` = '$id_object'");
@@ -98,9 +106,11 @@ class Obj {
             mysqli_query($db, "INSERT INTO `object_power`(`id_object`, `object_power`) VALUES ('$id_object', '$power')");
         }
 
+        
+
         mysqli_close($db);
 
-        Router::redirect('/');
+        Router::redirect('/rues?id='.$code_adm);
     }
 
     public function arenda($data)
@@ -111,6 +121,7 @@ class Obj {
         $id_contract = $data['id_contract'];
 
         mysqli_query($db, "INSERT INTO `object_contracts`(`id_object`, `id_contract`) VALUE ('$id_object', '$id_contract')");
+        mysqli_close($db);
 
         Router::redirect('/');
     }

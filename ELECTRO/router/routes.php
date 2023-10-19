@@ -6,9 +6,9 @@ use App\Controllers\Contract;
 use App\Controllers\Obj;
 use App\Controllers\Counter;
 use App\Controllers\Device;
-use App\Controllers\XML;
-use App\Controllers\Excel;
 use App\Controllers\News;
+use App\Controllers\Info;
+require_once('app/Controllers/ExcelImport.php');
 
 /**
  * прописываем наши роуты в классе Router
@@ -19,7 +19,6 @@ Router::page('/', 'home');
 Router::page('/login', 'login');
 Router::page('/admin', 'admin');
 Router::page('/profile', 'profile');
-Router::page('/add', 'objectAdd');
 Router::page('/rues', 'rues');
 Router::page('/arenda', 'arenda');
 Router::page('/arendaadd', 'arendaAdd');
@@ -27,20 +26,20 @@ Router::page('/contracts', 'contracts');
 Router::page('/counters', 'counters');
 Router::page('/search', 'search');
 Router::page('/device', 'device');
-Router::page('/makeExcel', 'makeExcel');
+Router::page('/test', 'test');
 Router::page('/filter', 'filter');
-Router::page('/analysis', 'analysis');
+Router::page('/analis', 'analis');
 Router::page('/analisData', 'analisData');
-Router::page('/getFile', 'getFile');
 
 /**
- * Обработка запросов на методы классов
+ * Обработка POST-запросов form
  */
 
 Router::post('/auth/register', Auth::class, 'register', true);
 Router::post('/auth/login', Auth::class, 'login', true);
 Router::post('/auth/logout', Auth::class, 'logout');
 Router::post('/auth/update', Auth::class, 'update', true);
+Router::post('/auth/delete', Auth::class, 'delete', true);
 Router::post('/auth/userUpdate', Auth::class, 'userUpdate', true);
 Router::post('/auth/userInfo', Auth::class, 'userInfo', true);
 
@@ -68,15 +67,16 @@ Router::post('/device/add', Device::class, 'add', true);
 Router::post('/device/delete', Device::class, 'delete', true);
 Router::post('/device/update', Device::class, 'update', true);
 
-Router::post('/xml/load', XML::class, 'load', true, true);
+Router::post('/excel/electro', ExcelImport::class, 'electro', true);
+Router::post('/excel/analis', ExcelImport::class, 'analis', true);
+Router::post('/excel/analisArenda', ExcelImport::class, 'analisArenda', true);
+Router::post('/excel/object', ExcelImport::class, 'object', true);
+Router::post('/excel/filterArenda', ExcelImport::class, 'filterArenda', true);
+Router::post('/excel/objectsExcel', ExcelImport::class, 'objectsExcel', true);
 
-Router::post('/excel/objects', Excel::class, 'objects', true);
-Router::post('/excel/objectByRues', Excel::class, 'objectByRues', true);
-Router::post('/excel/electro', Excel::class, 'electro', true);
-Router::post('/excel/analis', Excel::class, 'analis', true);
-Router::post('/excel/analisArenda', Excel::class, 'analisArenda', true);
+Router::post('/news/load', News::class, 'load', true);
 
-Router::post('/news/load', News::class, 'load', true, true);
+Router::post('/info', Info::class, 'load', true);
 
 /**
  * читаем $_GET['q'] - адрес на который ссылается пользователь

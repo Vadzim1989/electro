@@ -2,7 +2,7 @@
 use App\Services\Page;
 use App\Services\Router;
 
-session_start();
+//session_start();
 
 if(!$_SESSION["user"]) {
     Router::redirect('/');
@@ -16,6 +16,12 @@ $full_name = $_SESSION['user']['full_name'];
 <!DOCTYPE html>
 <html lang="en">
 <?php Page::part('head'); ?>
+
+<script type="text/javascript">
+    function onClick() {
+        alert("Пароль изменен!");
+    }
+</script>
 
 <body>
     <?php Page::part('navbar'); ?>
@@ -36,7 +42,7 @@ $full_name = $_SESSION['user']['full_name'];
                 <label for="password" class="form-label">Пароль</label>
                 <input type="password" name="password" class="form-control" id="password">
             </div>
-            <button type="submit" class="btn btn-primary">Изменить пароль</button>
+            <button type="submit" class="btn btn-primary" onclick="onClick()">Изменить пароль</button>
         </form>        
     </div>
 </body>

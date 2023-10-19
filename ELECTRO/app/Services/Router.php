@@ -5,7 +5,7 @@ namespace App\Services;
 class Router
 {
 
-    private static $list = [];
+    public static $list = [];
 
     /**
      * метод для наполнения наших роутов
@@ -85,12 +85,12 @@ class Router
     }
 
     public static function redirect($uri) {
-        header("Location: /ELECTRO" . $uri);
+        header("Location: http://electro.gmltelecom.int" . $uri);
         die();
     }
 
     public static function redirect_wrong($uri) {
-        header("Refresh: 0.1, URL=/ELECTRO" . $uri);
+        header("Refresh: 0.1, URL=http://electro.gmltelecom.int" . $uri);
         echo "<script>alert('Не верный логин или пароль')</script>";
         die();
     }

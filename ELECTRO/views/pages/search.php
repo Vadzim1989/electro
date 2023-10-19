@@ -1,11 +1,34 @@
 <?php
 use App\Services\Page;
 use App\Services\Router;
-$search_name = $_POST['search'];
+
 if(!$_SESSION['user']) {
     Router::redirect('/');
 }
-include('functions/getSearchByRues.php')
+
+require_once('vendor/db.php');
+
+if(isset($_POST['landlord']) && isset($_POST['address'])) {
+    unset($_POST['address']);
+}
+
+if(isset($_POST['object_name'])) {
+    $search = $_POST['object_name'];
+    $query = mysqli_query($db, "SELECT DISTINCT `object`.`id_object`, `object`.remark, `object`.`object_name`, oa.`address`, `object`.`code_adm`, ocal.`name` as rues, om.`mount`, om.`used`, op.`object_power`, c.`landlord`, obcnt.`id_object` AS `cnt`, odev.id_object as devices  FROM `object` LEFT JOIN `object_code_adm_list` ocal ON (ocal.code_adm = `object`.code_adm) LEFT JOIN `object_mount` om ON (om.id_object = `object`.id_object) LEFT JOIN `object_address` oa ON (oa.id_object = `object`.id_object) LEFT JOIN `object_power` op ON (op.id_object = `object`.id_object) LEFT JOIN `object_contracts` ocont ON (ocont.id_object = `object`.id_object) LEFT JOIN `contracts` c ON (c.id_contract = ocont.id_contract) LEFT JOIN `object_counter` obcnt ON (`object`.`id_object` = obcnt.id_object) LEFT JOIN `object_devices` odev ON (`object`.`id_object` = odev.id_object) WHERE `object`.`object_name` LIKE '%$search%' ORDER BY `object`.`id_object`");    
+} elseif(isset($_POST['landlord'])) {
+    $search = $_POST['landlord'];
+    $query = mysqli_query($db, "SELECT c.`id_contract`, c.`landlord`, c.`unp`, c.`landlord_address`, c.`object`, c.`equip_address`, c.`contract_num`, c.`contract_start`, c.`contract_end`, c.`landlord_area`, c.`wall`, c.`length`, c.`bav`, c.`byn`, c.`nds`, c.`pay_attribute`, c.`pay_date`, c.`comments`, c.`area`, c.`part`, oc.`id_object`, o.`object_name`, o.`code_adm`, ocal.name as rues, c.code_adm as code FROM `contracts` c LEFT JOIN `object_contracts` oc ON (c.`id_contract` = oc.`id_contract`) LEFT JOIN `object` o ON (oc.`id_object` = o.`id_object`) LEFT JOIN `object_code_adm_list` ocal ON (c.code_adm = ocal.code_adm) WHERE c.`landlord` LIKE '%$search%' ORDER BY c.`id_contract`");
+} elseif(isset($_POST['address'])) {
+    $search = $_POST['address'];
+    $query = mysqli_query($db, "SELECT c.`id_contract`, c.`landlord`, c.`unp`, c.`landlord_address`, c.`object`, c.`equip_address`, c.`contract_num`, c.`contract_start`, c.`contract_end`, c.`landlord_area`, c.`wall`, c.`length`, c.`bav`, c.`byn`, c.`nds`, c.`pay_attribute`, c.`pay_date`, c.`comments`, c.`area`, c.`part`, oc.`id_object`, o.`object_name`, o.`code_adm`, ocal.name as rues, c.code_adm as code FROM `contracts` c LEFT JOIN `object_contracts` oc ON (c.`id_contract` = oc.`id_contract`) LEFT JOIN `object` o ON (oc.`id_object` = o.`id_object`) LEFT JOIN `object_code_adm_list` ocal ON (c.code_adm = ocal.code_adm) WHERE c.`equip_address` LIKE '%$search%' ORDER BY c.`id_contract`");
+}
+
+$datas = [];
+while($row = mysqli_fetch_assoc($query)) {
+    $datas[] = $row;
+}
+
+
 ?>
 
 <!DOCTYPE html>
@@ -14,8 +37,7 @@ include('functions/getSearchByRues.php')
 ?>
 
 <style>
-    table > thead > tr > th,
-    table > tbody > tr > td {
+    table > thead > tr > th {
         font-size: small;
         text-align: center;
     }
@@ -28,100 +50,25 @@ include('functions/getSearchByRues.php')
     a {
         text-decoration: none;
     }
-    .developer {
+    .developer,
+    table > tbody > tr > td {
         font-size: small;
     }
 </style>
 
 <body>
-    <?php Page::part('navbar'); ?>
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>№</th>
-                <th>Название объекта</th>
-                <th>Район</th>
-                <th>Адрес</th>
-                <th>Оборудование на объекте</th>
-                <th>Арендодатель</th>
-                <th>Монтированая емкость</th>
-                <th>Задействованая емкость</th>
-                <th>Расчетная мощность, кВт</th>
-                <th>Расчетное потребление, кВт*ч</th>
-                <th>Счетчики</th>
-                <th>Правки</th>
-            </tr>
-        </thead> 
-        <tbody>
-            <?php
-                $datas = getSearchByRues($_SESSION['user']['zues'], $search_name);
-                foreach ($datas as $key => $data) {
-                    # code...
-                    ?>
-                        <tr>
-                            <td class="align-middle id_object"><?= $data["id_object"] ?></td>
-                            <td class="align-middle object_name"><?= $data["object_name"] ?></td>
-                            <td class="align-middle"><?= $data["rues"] ?></td>
-                            <td class="align-middle"><?= $data["address"] ?></td>
-                            <td class="align-middle text-center">
-                                <?php
-                                    if($data['devices']) {
-                                        ?>
-                                            <a class="btn btn-success" href="/ELECTRO/device?id=<?=$data['id_object']?>">&#128736</a>
-                                        <?php
-                                    } else {
-                                        ?>
-                                            <a class="btn btn-outline-secondary" href="/ELECTRO/device?id=<?=$data['id_object']?>">&#128736</a>
-                                        <?php
-                                    }
-                                ?>                                
-                            </td>
-                            <td class="align-middle text-center">
-                                <?php
-                                    if($data['id_contract']) {
-                                        ?>
-                                            <a href="/ELECTRO/arenda?idc=<?=$data['id_contract']?>&ido=<?=$data['id_object']?>&cda=<?=$data['code_adm']?>"><span class='btn btn-success'>&#10003</span></a>
-                                        <?php
-                                    } else {
-                                        ?>
-                                            <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#addArenda" id-obj="<?=$data['id_object']?>" obj-name="<?=$data['object_name']?>">&#10007</button>
-                                        <?php
-                                    }
-                                ?>                                
-                            </td>
-                            <td class="align-middle"><?= $data["mount"] ?></td>
-                            <td class="align-middle"><?= $data["used"] ?></td>
-                            <td class="align-middle"><?= $data["object_power"] ?></td>
-                            <td class="align-middle"><?= $data["object_power"] * 24 * cal_days_in_month(CAL_GREGORIAN, date('m'), date('y'))?></td>
-                            <td class="align-middle">
-                                <?php
-                                    if($data['cnt']) {
-                                        ?>
-                                            <a class="btn btn-success" href="/ELECTRO/counters?id=<?=$data['id_object']?>">&#9881</a>
-                                        <?php
-                                    } else {
-                                        ?>
-                                            <a class="btn btn-outline-secondary" href="/ELECTRO/counters?id=<?=$data['id_object']?>">&#9881</a>
-                                        <?php
-                                    }
-                                ?>
-                                
-                            </td>
-                            <td class="align-middle"><button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#updateObject" data-bs-id="<?= $data['id_object'] ?>" data-bs-name="<?= $data['object_name'] ?>" data-bs-rues="<?= $data['rues']?>" data-bs-address="<?=$data['address']?>" data-bs-mount="<?=$data['mount']?>" data-bs-used="<?=$data['used']?>" data-bs-power="<?=$data['object_power']?>">&#9997</button></td>
-                        </tr>
-                    <?php
-                }
-            ?>
-        </tbody>
-        <tfoot class="sticky-bottom bg-success-subtle">
-            <tr>
-                <td class="text-center" colspan="12"><i><?=count($datas)?> объект(ов), по запросу:</i> "<b><?=$search_name?></b>"</td>
-            </tr>
-        </tfoot>
-    </table>
-    <?php Page::part('objectModal');  Page::part('navbarModal');?>
+    <?php 
+    Page::part('navbar'); 
+    if(isset($_POST['object_name'])) {
+        include("views/components/tableSearchObjects.php");
+        include("views/modal/modalForObject.php");
+    } elseif(isset($_POST['landlord']) || isset($_POST['address'])) {
+        include("views/components/tableSearchContracts.php");
+    }
+    include('views/modal/modalForNavbar.php'); 
+    mysqli_close($db);    
+    ?>
 </body>
-
 
 
 </html>

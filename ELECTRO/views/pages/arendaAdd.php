@@ -19,7 +19,34 @@ if(!$_SESSION['user']) {
                 <h1 class="display-5 fw-bold">Новый договора аренды</h1>
             </div>
         </div>
-        <form class="mt-4" action="./contract/add" method="post" enctype="multipart/form-data">
+        <form class="mt-4" action="/contract/add" method="post" enctype="multipart/form-data">
+            <div class="mb-2">
+                <label for="code_adm" class="form-label">Район</label>
+                <select name="code_adm" id="code_adm" class="form-control">
+                    <option value="20">Гомель</option>
+                    <option value="30">Ветка</option>
+                    <option value="32">Чечерск</option>
+                    <option value="33">Добруш</option>
+                    <option value="34">Жлобин</option>
+                    <option value="36">Буда-Кошелево</option>
+                    <option value="37">Корма</option>
+                    <option value="39">Рогачев</option>
+                    <option value="40">Речица</option>
+                    <option value="42">Светлогорск</option>
+                    <option value="44">Брагин</option>
+                    <option value="45">Калинковичи</option>
+                    <option value="46">Хойники</option>
+                    <option value="47">Лоев</option>
+                    <option value="50">Петриков</option>
+                    <option value="51">Мозырь</option>
+                    <option value="53">Житковичи</option>
+                    <option value="54">Ельск</option>
+                    <option value="55">Наровля</option>
+                    <option value="56">Лельчицы</option>
+                    <option value="57">Октябрьский</option>
+                    <option value="79">Гомельский РУЭС</option>
+                </select>
+            </div>
             <div class="mb-3">
                 <label for="landlord" class="form-label">Арендодатель</label>
                 <input type="text" name="landlord" class="form-control" id="landlord">
@@ -97,7 +124,7 @@ if(!$_SESSION['user']) {
                 <input type="text" class="form-control" name="part" id="part">
             </div>
             <button type="submit" class="btn btn-primary mb-3">Добавить</button>          
-            <a href="/ELECTRO/contracts" class="btn btn-secondary mb-3">Закрыть</a>
+            <a href="/contracts" class="btn btn-secondary mb-3">Закрыть</a>
         </form>
     </div>
 </body>

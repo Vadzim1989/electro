@@ -11,7 +11,13 @@ if(!$_SESSION['user']) {
 <?php Page::part('head'); 
 require_once('vendor/db.php');
 $id = $_GET['id'];
-$datas = \R::getAll("SELECT * FROM `object_devices` WHERE `id_object` = '$id'");
+
+$query = mysqli_query($db, "SELECT * FROM `object_devices` WHERE `id_object` = '$id'");
+$datas = [];
+while($row = mysqli_fetch_assoc($query)) {
+    $datas[] = $row;
+}
+
 
 $object = mysqli_query($db, "SELECT `object_name` FROM `object` WHERE `id_object` = '$id'");
 $object = mysqli_fetch_assoc($object);
@@ -37,6 +43,9 @@ $object = mysqli_fetch_assoc($object);
         max-width: 100rem;
         margin: auto;
     }
+    textarea {
+        resize: none;
+    }
 </style>
 
 <body>
@@ -50,7 +59,8 @@ $object = mysqli_fetch_assoc($object);
                 <th>Установлено</th>
                 <th>Используется</th>
                 <th>Потребляемая мощность, Вт</th>
-                <th>Время работы</th>
+                <th>Время работы, сек.</th>
+                <th>Примечания</th>
                 <th>
                     <button type="button" title="Добавить оборудование" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addDevice" id-obj="<?=$id?>" obj-nam="<?=$object['object_name']?>">&#10010</button>
                 </th>
@@ -62,14 +72,15 @@ $object = mysqli_fetch_assoc($object);
                     # code...
                     ?>
                         <tr>
-                            <td class="align-middle id_counter"><?= $data["id_device"] ?></td>
+                            <td class="align-middle id_counter"><?= $key + 1 ?></td>
                             <td class="align-middle name"><?= $data["device_name"] ?></td>
                             <td class="align-middle"><?= $data["device_mount"] ?></td>
                             <td class="align-middle"><?= $data["device_used"] ?></td>
                             <td class="align-middle"><?= $data["device_power"] ?></td>
                             <td class="align-middle"><?= $data["device_time"] ?></td>
+                            <td class="align-middle"><?= $data["remark"] ?></td>
                             <td class="align-middle">
-                                <button type="button" title="Информация" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#updateDevice" id-obj="<?=$data['id_object']?>" id-dev="<?=$data['id_device']?>" dev-nam="<?=$data['device_name']?>" dev-mnt="<?=$data['device_mount']?>" dev-use="<?=$data['device_used']?>" dev-pw="<?=$data['device_power']?>" dev-tm="<?=$data['device_time']?>">&#9997</button>
+                                <button type="button" title="Информация" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#updateDevice" id-obj="<?=$data['id_object']?>" id-dev="<?=$data['id_device']?>" dev-nam="<?=$data['device_name']?>" dev-mnt="<?=$data['device_mount']?>" dev-use="<?=$data['device_used']?>" dev-pw="<?=$data['device_power']?>" dev-tm="<?=$data['device_time']?>" dev-r="<?=$data['remark']?>">&#9997</button>
                             </td>
                         </tr>
                     <?php
@@ -77,7 +88,7 @@ $object = mysqli_fetch_assoc($object);
             ?>
         </tbody>
     </table>
-    <?php Page::part('deviceModal'); ?>
+    <?php Page::modal('modalForDevice'); ?>
 </body>
 
 

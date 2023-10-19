@@ -2,9 +2,12 @@
 use App\Services\Page;
 use App\Services\Router;
 
+require_once('vendor/db.php');
+
 if($_SESSION["user"]["group"] != 2) {
     Router::redirect('/');
 }
+$datas = [];
 ?>
 
 <!DOCTYPE html>
@@ -12,11 +15,18 @@ if($_SESSION["user"]["group"] != 2) {
 <?php Page::part('head'); ?>
 
 <style>
-    .drop_pass {
+    .drop_pass,
+    .delete_user {
         border-radius: 5px;
     }
     .drop_pass:hover {
         background-color: #42f58a;
+        transform: scale(1.2);
+        transition: all .5s ease-in-out;
+    }
+
+    .delete_user:hover {
+        background-color: red;
         transform: scale(1.2);
         transition: all .5s ease-in-out;
     }
@@ -26,6 +36,9 @@ if($_SESSION["user"]["group"] != 2) {
     function dropPass() {
         alert("Пароль сброшен!");
     }
+    function deleteUser() {
+        alert("Пользователь удален!");
+    }
 </script>
 
 <body>
@@ -33,8 +46,8 @@ if($_SESSION["user"]["group"] != 2) {
 
     <div class="container">
         <div class="p-5 mb-4 mt-4 bg-light rounded-3">
-            <div class="container-fluid py-5">
-                <h1 class="display-5 fw-bold">Добавить пользователя</h1>
+            <div class="container-fluid">
+                <h1 class="display fw-bold">Добавить пользователя</h1>
             </div>
         </div>
         <form class="mt-4" action="./auth/register" method="post" enctype="multipart/form-data">
@@ -51,54 +64,18 @@ if($_SESSION["user"]["group"] != 2) {
                 <input type="password" name="password" class="form-control" id="password">
             </div>
             <div class="mb-3">
-                <label for="password_confirm" class="form-label">Пароль повторно</label>
-                <input type="password" name="password_confirm" class="form-control" id="password_confirm">
-            </div>
-            <div class="mb-3">
                 <label for="group" class="form-label">Роль</label>
                 <select name="group" id="group" class="form-control">
                     <option value="1">Пользователь</option>
-                    <option value="3">Руководитель</option>
                     <option value="2">Админ</option>
                 </select>
-            </div>
-            <div class="mb-3">
-                <p class="mb-2">Выберите ЗУЭС:</p>
-                <div class="form-check form-switch">
-                    <input class="form-check-input" type="radio" role="switch" name="zues" id="allzues" value="all" checked>
-                    <label class="form-check-label" for="allzues">Все</label>
-                </div>
-                <div class="form-check form-switch">
-                    <input class="form-check-input" type="radio" role="switch" name="zues" id="gomel" value="gomel">
-                    <label class="form-check-label" for="gomel">Гомель</label>
-                </div>
-                <div class="form-check form-switch">
-                    <input class="form-check-input" type="radio" role="switch" name="zues" id="gomelzues" value="gomelzues">
-                    <label class="form-check-label" for="gomelzues">Гомельский ЗУЭС</label>
-                </div>
-                <div class="form-check form-switch">
-                    <input class="form-check-input" type="radio" role="switch" name="zues" id="jlobinzues" value="jlobin">
-                    <label class="form-check-label" for="jlobinzues">Жлобинский ЗУЭС</label>
-                </div>
-                <div class="form-check form-switch">
-                    <input class="form-check-input" type="radio" role="switch" name="zues" id="kalinzues" value="kalin">
-                    <label class="form-check-label" for="kalinzues">Калинковичский ЗУЭС</label>
-                </div>
-                <div class="form-check form-switch">
-                    <input class="form-check-input" type="radio" role="switch" name="zues" id="mozirzues" value="mozir">
-                    <label class="form-check-label" for="mozirzues">Мозырский ЗУЭС</label>
-                </div>
-                <div class="form-check form-switch">
-                    <input class="form-check-input" type="radio" role="switch" name="zues" id="rechzues" value="rech">
-                    <label class="form-check-label" for="rechzues">Речицкий ЗУЭС</label>
-                </div>
             </div>
             <button type="submit" class="btn btn-primary">Добавить</button>
         </form>
 
         <div class="p-5 mb-4 mt-4 bg-light rounded-3">
-            <div class="container-fluid py-5">
-                <h1 class="display-5 fw-bold">Пользователи</h1>
+            <div class="container-fluid">
+                <h1 class="fw-bold">Пользователи</h1>
             </div>
         </div>
 
@@ -107,57 +84,41 @@ if($_SESSION["user"]["group"] != 2) {
                 <tr>
                     <th>Логин</th>
                     <th>ФИО</th>
-                    <th>ЗУЭС</th>
                     <th>Роль</th>
                     <th class="text-center">Сброс пароля</th>
+                    <th class="text-center">Удалить пользователя</th>
                     <th class="text-center">Правки</th>
                 </tr>
            </thead> 
            <tbody>
            <?php 
-                $datas = \R::getAll('SELECT `id`, `login`, `full_name`, `group`, `zues` FROM `users`');
-
+                $query = mysqli_query($db, 'SELECT `id`, `login`, `full_name`, `group` FROM `users`');
+                while($row = mysqli_fetch_assoc($query)) {
+                    $datas[] = $row;
+                }
+                mysqli_close($db);
                 foreach ($datas as $key => $data) {
                     # code...
                     ?>
                         <tr>
                             <td class="align-middle"><?= $data["login"] ?></td>
                             <td class="align-middle"><?= $data["full_name"] ?></td>
-                            <td class="align-middle">
-                                <?php
-                                    switch($data["zues"]) {
-                                        case 'all':
-                                            echo 'Все';
-                                            break;
-                                        case 'gomel':
-                                            echo 'Гомель';
-                                            break;
-                                        case 'gomelzues':
-                                            echo 'Гомельский ЗУЭС';
-                                            break;
-                                        case 'jlobin':
-                                            echo 'Жлобинский ЗУЭС';
-                                            break;
-                                        case 'kalin':
-                                            echo 'Калинковичский ЗУЭС';
-                                            break;
-                                        case 'mozir':
-                                            echo 'Мозырский ЗУЭС';
-                                            break;
-                                        case 'rech':
-                                            echo 'Речицкий ЗУЭС';
-                                            break;
-                                    }
-                                ?>
-                            </td>
-                            <td class="align-middle"><?php if ($data["group"] == 1) {echo "Пользователь"; }elseif($data['group']==2) {echo "Админ";} else echo "Руководитель";?></td>
+                            <td class="align-middle"><?php if ($data["group"] == 1) echo "Пользователь"; else echo "Админ";?></td>
                             <td class="text-center">
                                 <form class="mt-1 mb-1" action="./auth/update" method="post">
                                     <input type="hidden" name="id" value="<?= $data['id'] ?>">
                                     <button type="submit" class="drop_pass" onclick="dropPass()">&#10003</button>
                                 </form>
                             </td>
-                            <td class="text-center"><button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#updateUser" id="<?=$data['id']?>" name="<?=$data['full_name']?>" login="<?=$data['login']?>" zues="<?=$data['zues']?>">+</button></td>
+                            <td class="text-center">
+                                <form class="mt-1 mb-1" action="./auth/delete" method="post">
+                                    <input type="hidden" name="id" value="<?= $data['id'] ?>">
+                                    <button type="submit" class="delete_user" onclick="deleteUser()">&#10007</button>
+                                </form>
+                            </td>
+                            <td class="text-center">
+                                <button type="button" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#updateUserInfo" id="<?=$data['id']?>" name="<?=$data['full_name']?>" login="<?=$data['login']?>">&#128396</button>
+                            </td>
                         </tr>
                     <?php
                 }
@@ -166,7 +127,7 @@ if($_SESSION["user"]["group"] != 2) {
         </table>
     </div>
     <?php
-        require('views/components/userModal.php');
+        require_once('views/modal/modalForAdmin.php');
     ?>
 </body>
 </html>

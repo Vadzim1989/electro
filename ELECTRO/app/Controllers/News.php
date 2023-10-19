@@ -3,7 +3,6 @@
 namespace App\Controllers;
 
 use App\Services\Router;
-use mysqli;
 
 class News {
 
@@ -20,7 +19,7 @@ class News {
         } else {
             mysqli_query($db, "INSERT INTO `news`(`news`, `date`) VALUES ('$news', '$date')");
         }
-        
+        mysqli_close($db);
         Router::redirect('/');               
     }
 

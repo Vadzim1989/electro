@@ -15,12 +15,14 @@ class Counter {
         $id_object = $data['id_object'];
         $counter_type = $data['counter_type'];
         $sn = $data['sn'];
+        $transform = $data['transform'];
+        $transform = str_replace(',','.',$transform);
 
         $object_name = mysqli_query($db, "SELECT `object_name` FROM `object` WHERE `id_object` = '$id_object'");
         $object_name = mysqli_fetch_assoc($object_name);
         mysqli_query($db, "INSERT INTO `history_counters`(`object_name`, `user`, `date`, `remark`) VALUES ('".$object_name['object_name']."', '".$_SESSION['user']['full_name']."', '".date('d-m-Y H:i:s')."', 'add')");
 
-        mysqli_query($db, "INSERT INTO `object_counter`(`id_object`,`id_counter`, `counter_type`, `sn`, `online`) VALUES ('$id_object', NULL, '$counter_type', '$sn', NULL)");
+        mysqli_query($db, "INSERT INTO `object_counter`(`id_object`,`id_counter`, `counter_type`, `sn`, `online`, `transform`) VALUES ('$id_object', NULL, '$counter_type', '$sn', NULL, '$transform')");
         mysqli_close($db);
         
         Router::redirect('/counters?id='.$id_object);
@@ -70,12 +72,14 @@ class Counter {
         $id_object = $data['id_object'];
         $counter_type = $data['counter_type'];
         $sn = $data['sn'];
+        $transform = $data['transform'];
+        $transform = str_replace(',','.',$transform);
 
         $object_name = mysqli_query($db, "SELECT `object_name` FROM `object` WHERE `id_object` = '$id_object'");
         $object_name = mysqli_fetch_assoc($object_name);
         mysqli_query($db, "INSERT INTO `history_counters`(`object_name`, `user`, `date`, `remark`) VALUES ('".$object_name['object_name']."', '".$_SESSION['user']['full_name']."', '".date('d-m-Y H:i:s')."', 'update')");
 
-        mysqli_query($db, "UPDATE `object_counter` SET `counter_type` = '$counter_type', `sn` = '$sn' WHERE `id_counter` = '$id_counter' AND `id_object` = '$id_object'");
+        mysqli_query($db, "UPDATE `object_counter` SET `counter_type` = '$counter_type', `sn` = '$sn', `transform` = '$transform' WHERE `id_counter` = '$id_counter' AND `id_object` = '$id_object'");
         mysqli_close($db);
 
         Router::redirect('/counters?id='.$id_object);

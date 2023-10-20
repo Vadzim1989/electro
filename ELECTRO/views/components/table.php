@@ -81,11 +81,11 @@
                             <?php
                                 if($data['devices']) {
                                     ?>
-                                        <a class="btn btn-success" title="Оборудование" href="/device?id=<?=$data['id_object']?>">&#128736</a>
+                                        <a class="btn btn-success" title="Оборудование" href="./device?id=<?=$data['id_object']?>">&#128736</a>
                                     <?php
                                 } else {
                                     ?>
-                                        <a class="btn btn-outline-secondary" title="Оборудование" href="/device?id=<?=$data['id_object']?>">&#128736</a>
+                                        <a class="btn btn-outline-secondary" title="Оборудование" href="./device?id=<?=$data['id_object']?>">&#128736</a>
                                     <?php
                                 }
                             ?>                                
@@ -98,11 +98,11 @@
                             <?php
                                 if($data['cnt']) {
                                     ?>
-                                        <a class="btn btn-success" title="Счетчики" href="/counters?id=<?=$data['id_object']?>" onclick="showModalCounter()">&#9881</a>
+                                        <a class="btn btn-success" title="Счетчики" href="./counters?id=<?=$data['id_object']?>" onclick="showModalCounter()">&#9881</a>
                                     <?php
                                 } else {
                                     ?>
-                                        <a class="btn btn-outline-secondary" title="Счетчики" href="/counters?id=<?=$data['id_object']?>" onclick="showModalCounter()">&#9881</a>
+                                        <a class="btn btn-outline-secondary" title="Счетчики" href="./counters?id=<?=$data['id_object']?>" onclick="showModalCounter()">&#9881</a>
                                     <?php
                                 }
                             ?>

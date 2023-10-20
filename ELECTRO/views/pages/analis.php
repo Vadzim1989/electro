@@ -73,10 +73,7 @@ if (!isset($_SESSION['user'])) {
                 <tr>
                     <td class="align-middle check_analis">&#10004</td>
                     <td class="align-middle text-analis">
-                        <form class="align-middle form-analis" action="./analisData" method="post" enctype="multipart/form-data">
-                            <input type="hidden" name="choice" value="3">
-                            <button type="submit" class="btn">Арендуемые объекты</button>
-                        </form>
+                        <button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#filterAnalizArenda">Арендуемые объекты</button>
                     </td>
                 </tr>
             </tbody>

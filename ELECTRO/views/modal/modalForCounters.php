@@ -28,6 +28,11 @@
                         <input type="text" class="form-control" id="sn" name="sn" required>
                     </div>
 
+                    <div class="mb-2">
+                        <label for="transform">Коэффициент трансформации</label>
+                        <input type="text" class="form-control" id="transform" name="transform" required>
+                    </div>
+
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>                    
@@ -60,6 +65,11 @@
                     <div class="mb-2">
                         <label for="sn">Заводской номер</label>
                         <input type="text" class="form-control" id="sn" name="sn" required>
+                    </div>
+
+                    <div class="mb-2">
+                        <label for="transform">Коэффициент трансформации</label>
+                        <input type="text" class="form-control" id="transform" name="transform" required>
                     </div>
 
                 </div>
@@ -215,6 +225,7 @@
         const type = button.getAttribute('cnt-type');
         const sn = button.getAttribute('cnt-sn');
         const id_object = button.getAttribute('obj-id');
+        const trans = button.getAttribute('trans');
         // If necessary, you could initiate an Ajax request here
         // and then do the updating in a callback.
 
@@ -224,6 +235,7 @@
         const idCounterDelete = updateCounter.querySelector('#id_delete');
         const idObject = updateCounter.querySelector('#id_object');
         const idObjectDelete = updateCounter.querySelector('#id_object_delete');
+        const transInfo = updateCounter.querySelector('#transform');
 
 
         idCounter.value = id_counter;
@@ -231,6 +243,7 @@
         counterSN.value = sn;
         idObject.value = id_object;
         idObjectDelete.value = id_object;
+        transInfo.value = trans;
 
         const select = updateCounter.querySelector('#counter_type').getElementsByTagName('option');
 

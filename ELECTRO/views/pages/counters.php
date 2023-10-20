@@ -111,7 +111,7 @@ if(!$_SESSION['user']['counter']){
 };
 
 
-$query = mysqli_query($db, "SELECT obc.id_counter, obc.online, obc.sn, obc.counter_type, ct.name, jan.value AS jan, f.value AS feb, mar.value AS mar, apr.value AS apr, may.value AS may, jun.value AS jun, jul.value AS jul, aug.value AS aug, s.value AS sep, o.value AS oct, n.value AS nov, d.value AS december  FROM `object_counter` obc LEFT JOIN `counter_type` ct ON (obc.counter_type = ct.counter_type) LEFT JOIN `$month[0]` jan ON (jan.id_counter = obc.id_counter) LEFT JOIN `$month[1]` f ON (f.id_counter = obc.id_counter) LEFT JOIN `$month[2]` mar ON (mar.id_counter = obc.id_counter) LEFT JOIN `$month[3]` apr ON (apr.id_counter = obc.id_counter) LEFT JOIN `$month[4]` may ON (may.id_counter = obc.id_counter) LEFT JOIN `$month[5]` jun ON (jun.id_counter = obc.id_counter) LEFT JOIN `$month[6]` jul ON (jul.id_counter = obc.id_counter) LEFT JOIN `$month[7]` aug ON (aug.id_counter = obc.id_counter) LEFT JOIN `$month[8]` s ON (s.id_counter = obc.id_counter) LEFT JOIN `$month[9]` o ON (o.id_counter = obc.id_counter) LEFT JOIN `$month[10]` n ON (n.id_counter = obc.id_counter) LEFT JOIN `$month[11]` d ON (d.id_counter = obc.id_counter) WHERE obc.id_object = '$id'");
+$query = mysqli_query($db, "SELECT obc.id_counter, obc.online, obc.transform, obc.sn, obc.counter_type, ct.name, jan.value AS jan, f.value AS feb, mar.value AS mar, apr.value AS apr, may.value AS may, jun.value AS jun, jul.value AS jul, aug.value AS aug, s.value AS sep, o.value AS oct, n.value AS nov, d.value AS december  FROM `object_counter` obc LEFT JOIN `counter_type` ct ON (obc.counter_type = ct.counter_type) LEFT JOIN `$month[0]` jan ON (jan.id_counter = obc.id_counter) LEFT JOIN `$month[1]` f ON (f.id_counter = obc.id_counter) LEFT JOIN `$month[2]` mar ON (mar.id_counter = obc.id_counter) LEFT JOIN `$month[3]` apr ON (apr.id_counter = obc.id_counter) LEFT JOIN `$month[4]` may ON (may.id_counter = obc.id_counter) LEFT JOIN `$month[5]` jun ON (jun.id_counter = obc.id_counter) LEFT JOIN `$month[6]` jul ON (jul.id_counter = obc.id_counter) LEFT JOIN `$month[7]` aug ON (aug.id_counter = obc.id_counter) LEFT JOIN `$month[8]` s ON (s.id_counter = obc.id_counter) LEFT JOIN `$month[9]` o ON (o.id_counter = obc.id_counter) LEFT JOIN `$month[10]` n ON (n.id_counter = obc.id_counter) LEFT JOIN `$month[11]` d ON (d.id_counter = obc.id_counter) WHERE obc.id_object = '$id'");
 $datas = [];
 while($row = mysqli_fetch_assoc($query)) {
     $datas[] = $row;
@@ -377,7 +377,7 @@ if(isset($arenda)) {
                                 ?>
                             </td>
                             <td class="align-middle" colspan="2">
-                                <button type="button" title="Информация" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#updateCounter" cnt-id="<?=$data['id_counter']?>" cnt-type="<?=$data['name']?>" cnt-sn="<?=$data['sn']?>" obj-id="<?=$id?>">&#9997</button>
+                                <button type="button" title="Информация" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#updateCounter" cnt-id="<?=$data['id_counter']?>" cnt-type="<?=$data['name']?>" cnt-sn="<?=$data['sn']?>" obj-id="<?=$id?>" trans="<?=$data['transform']?>">&#9997</button>
                             </td>
                         </tr>
                         <tr>
@@ -395,7 +395,7 @@ if(isset($arenda)) {
                                         if($prevDec['value']-$data['jan'] < 0) {
                                             echo "0";
                                         } else {
-                                            echo round($prevDec['value']-$data['jan'],2);
+                                            echo round(($prevDec['value']-$data['jan'])*$data['transform'],2);
                                         }
                                     }else{
                                         echo "0";
@@ -407,7 +407,7 @@ if(isset($arenda)) {
                                     if($data['feb']-$data['jan'] < 0) {
                                         echo "0";
                                     } else {
-                                        echo round($data['feb']-$data['jan'],2);
+                                        echo round(($data['feb']-$data['jan'])*$data['transform'],2);
                                     }
                                 ?>
                             </td>
@@ -416,7 +416,7 @@ if(isset($arenda)) {
                                     if($data['mar']-$data['feb'] < 0) {
                                         echo "0";
                                     } else {
-                                        echo round($data['mar']-$data['feb'],2);
+                                        echo round(($data['mar']-$data['feb'])*$data['transform'],2);
                                     }
                                 ?>
                             </td>
@@ -425,7 +425,7 @@ if(isset($arenda)) {
                                     if($data['apr']-$data['mar'] < 0) {
                                         echo "0";
                                     } else {
-                                        echo round($data['apr']-$data['mar'],2);
+                                        echo round(($data['apr']-$data['mar'])*$data['transform'],2);
                                     }
                                 ?>
                             </td>
@@ -434,7 +434,7 @@ if(isset($arenda)) {
                                     if($data['may']-$data['apr'] < 0) {
                                         echo "0";
                                     } else {
-                                        echo round($data['may']-$data['apr'],2);
+                                        echo round(($data['may']-$data['apr'])*$data['transform'],2);
                                     }
                                 ?>
                             </td>
@@ -443,7 +443,7 @@ if(isset($arenda)) {
                                     if($data['jun']-$data['may'] < 0) {
                                         echo "0";
                                     } else {
-                                        echo round($data['jun']-$data['may'],2);
+                                        echo round(($data['jun']-$data['may'])*$data['transform'],2);
                                     }
                                 ?>
                             </td>
@@ -452,7 +452,7 @@ if(isset($arenda)) {
                                     if($data['jul']-$data['jun'] < 0) {
                                         echo "0";
                                     } else {
-                                        echo round($data['jul']-$data['jun'],2);
+                                        echo round(($data['jul']-$data['jun'])*$data['transform'],2);
                                     }
                                 ?>
                             </td>
@@ -461,7 +461,7 @@ if(isset($arenda)) {
                                     if($data['aug']-$data['jul'] < 0) {
                                         echo "0";
                                     } else {
-                                        echo round($data['aug']-$data['jul'],2);
+                                        echo round(($data['aug']-$data['jul'])*$data['transform'],2);
                                     }
                                 ?>
                             </td>
@@ -470,7 +470,7 @@ if(isset($arenda)) {
                                     if($data['sep']-$data['aug'] < 0) {
                                         echo "0";
                                     } else {
-                                        echo round($data['sep']-$data['aug'],2);
+                                        echo round(($data['sep']-$data['aug'])*$data['transform'],2);
                                     }
                                 ?>
                             </td>
@@ -479,7 +479,7 @@ if(isset($arenda)) {
                                     if($data['oct']-$data['sep'] < 0) {
                                         echo "0";
                                     } else {
-                                        echo round($data['oct']-$data['sep'],2);
+                                        echo round(($data['oct']-$data['sep'])*$data['transform'],2);
                                     }
                                 ?>
                             </td>
@@ -488,7 +488,7 @@ if(isset($arenda)) {
                                     if($data['nov']-$data['oct'] < 0) {
                                         echo "0";
                                     } else {
-                                        echo round($data['nov']-$data['oct'],2);
+                                        echo round(($data['nov']-$data['oct'])*$data['transform'],2);
                                     }
                                 ?>
                             </td>
@@ -497,7 +497,7 @@ if(isset($arenda)) {
                                     if($data['december']-$data['nov'] < 0) {
                                         echo "0";
                                     } else {
-                                        echo round($data['december']-$data['nov'],2);
+                                        echo round(($data['december']-$data['nov'])*$data['transform'],2);
                                     }
                                 ?>
                             </td>                            

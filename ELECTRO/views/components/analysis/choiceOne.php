@@ -2,32 +2,29 @@
 <table class="table table-striped device-table">
     <thead>
         <tr>
-            <th>УЭС, ЗУЭС</th>
-            <th>Название объекта</th>
-            <th class="text-center">Потребление ЭЭ за <?=$date[1].$date[0]?></th>
-            <th class="text-center">Задействованная емкость объекта</th>
-            <th class="text-center">Потребление кВт.ч на зайдествованный порт за месяц</th>
-            <th class="text-center">Удельное потребление</th>
-            <th>
+            <th id="rues_sort" class="align-middle">УЭС, ЗУЭС</th>
+            <th id="object_name_sort" class="align-middle">Название объекта</th>
+            <th id="counter" class="text-center align-middle">Потребление ЭЭ за <?=$date[1].$date[0]?></th>
+            <th id="used" class="text-center align-middle">Задействованная емкость объекта</th>
+            <th id="usedKvt" class="text-center align-middle">Потребление кВт.ч на зайдествованный порт за месяц</th>
+            <th id="udel" class="text-center align-middle">Удельное потребление</th>
+            <th class="align-middle">
                 <form action="./excel/electro" method="post" enctype="multipart/form-data">
                     <input type="hidden" name="code_adm" value="<?=$code_adm?>">
                     <input type="hidden" name="object_name" value="<?=$object_name?>">
                     <input type="hidden" name="monthFrom" value="<?=$monthFrom?>">
                     <input type="hidden" name="monthTo" value="<?=$monthTo?>">
-                    <button title="Excel" class="btn" type="submit">&#128196</button>
+                    <button title="Excel" class="btn excel-btn" type="submit">&#128196</button>
                 </form>
             </th>
         </tr>
     </thead>
-    <tbody>
+    <tbody id='table-body'>
         <?php
+        /*
             foreach($datas as $key => $data) {
-                if(is_null($data['used']) || $data['used'] == 0) {
-                    $usedkvtmonth = 0;
-                    $usedkvt = 0;
-                } else {
-                    $usedkvtmonth = ($data['value_cnt'])/$data['used'];
-                    $usedkvt = ($usedkvtmonth * 1000)/(24*cal_days_in_month(CAL_GREGORIAN, date('m'), date('y')));
+                if(is_null($data['udel']) || $data['udel'] == 0) {
+                    continue;
                 }
                 ?>
                 <tr>
@@ -35,11 +32,40 @@
                     <td><?=$data['object_name']?></td>
                     <td class="text-center"><?=$data['value_cnt']?></td>
                     <td class="text-center"><?=$data['used']?></td>
-                    <td class="text-center"><?=round($usedkvtmonth,3)?></td>
-                    <td colspan="2" class="text-center"><?=round($usedkvt,3)?></td>
+                    <td class="text-center"><?=round($data['usedkvt'],3)?></td>
+                    <td colspan="2" class="text-center"><?=round($data['udel'],3)?></td>
                 </tr>
                 <?php
             }
+        */
         ?>
     </tbody>
 </table>
+
+<script type="text/javascript">
+    function buildTable(data) {
+        let table = document.getElementById('table-body')
+        table.innerHTML = '';
+        for (let i = 0; i < data.length; i++) {
+            let rues = data[i].rues;
+            let object_name = data[i].object_name;
+            let counter = data[i].counter;
+            let used = data[i].used;
+            let usedkvt = data[i].usedKvt;
+            let udel = data[i].udel;
+            let row = `
+                <tr>
+                    <td>${rues}</td>
+                    <td>${object_name}</td>
+                    <td class="text-center">${counter}</td>
+                    <td class="text-center">${used}</td>
+                    <td class="text-center">${usedkvt}</td>
+                    <td class="text-center" colspan='2'>${udel}</td>
+                <tr/>
+                `;
+            table.innerHTML += row;
+        }
+    }
+
+    buildTable(arr);
+</script>

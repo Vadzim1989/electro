@@ -2,18 +2,19 @@
 <table class="table table-striped device-table">
     <thead>
         <tr>
-            <th>УЭС, ЗУЭС</th>
-            <th>Название объекта</th>
-            <th>Адрес объекта аренды</th>
-            <th>Арендодатель</th>
-            <th>Номер договора</th>
-            <th>Дата начала действия договора</th>
-            <th>Дата окончания действия договора</th>
-            <th>Площадь (кв.м.)</th>
-            <th>Арендная плата (руб.)</th>
+            <th class="align-middle" style="font-size: .8rem;">УЭС, ЗУЭС</th>
+            <th class="align-middle" style="font-size: .8rem;">Название объекта</th>
+            <th class="align-middle" style="font-size: .8rem;">Адрес объекта аренды</th>
+            <th class="align-middle" style="font-size: .8rem;">Арендодатель</th>
+            <th class="align-middle" style="font-size: .8rem;">Номер договора</th>
+            <th class="align-middle" style="font-size: .8rem;">Дата начала действия договора</th>
+            <th class="align-middle" style="font-size: .8rem;">Дата окончания действия договора</th>
+            <th class="align-middle" style="font-size: .8rem;">Площадь (кв.м.)</th>
+            <th class="align-middle" style="font-size: .8rem;">Арендная плата (руб.)</th>
             <th>
-                <form action="./excel/analisArenda" method="post" enctype="multipart/form-data">                    
-                    <button title="Excel" class="btn" type="submit">&#128196</button>
+                <form action="./excel/analisArenda" method="post" enctype="multipart/form-data">  
+                    <input type="hidden" name="sort" value="<?=$sort?>">                  
+                    <button title="Excel" class="btn excel-btn" type="submit">&#128196</button>
                 </form>
             </th>
         </tr>

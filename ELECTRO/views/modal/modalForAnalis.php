@@ -50,7 +50,9 @@
                             <option value="obj.object_name">По названию &#8593</option>
                             <option value="obj.object_name desc">По названию &#8595</option>                           
                             <option value="obj.code_adm">По району &#8593</option>                            
-                            <option value="obj.code_adm desc">По району &#8595</option>                            
+                            <option value="obj.code_adm desc">По району &#8595</option> 
+                            <option value="udel">По уд.потреблению &#8593</option>                             
+                            <option value="udel desc">По уд.потреблению &#8595</option>                            
                         </select>
                     </div> 
                 </div>
@@ -116,6 +118,40 @@
                             <option value="obj.object_name desc">По названию &#8595</option>                           
                             <option value="obj.code_adm">По району &#8593</option>                            
                             <option value="obj.code_adm desc">По району &#8595</option>                            
+                        </select>
+                    </div>    
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>                    
+                    <button type="submit" class="btn btn-success">Применить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal фильтр -->
+<div class="modal fade" id="filterAnalizArenda" tabindex="-1" aria-labelledby="filterTitle" style="display: none;" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">            
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="filterTitle">Арендуемые объекты</h1>
+            </div>
+            <form class="mt-4" action="./analisData" method="post" enctype="multipart/form-data">    
+                <div class="modal-body">
+                    <div>
+                        <input type="hidden" name="choice" value="3">
+                        <label for="sort">Сортировать по...</label>
+                        <select name="sort" id="sort"  class="form-control">
+                            <option value="object_name">По названию &#8593</option>
+                            <option value="object_name desc">По названию &#8595</option>                           
+                            <option value="obcal.name">По району &#8593</option>                            
+                            <option value="obcal.name desc">По району &#8595</option> 
+                            <option value="landlord_area">По площади &#8593</option>                            
+                            <option value="landlord_area desc">По площади &#8595</option> 
+                            <option value="byn">По арендной плате &#8593</option>                            
+                            <option value="byn desc">По арендной плате &#8595</option>                             
                         </select>
                     </div>    
                 </div>

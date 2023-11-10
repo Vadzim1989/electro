@@ -37,9 +37,10 @@
             $sort = 'obj.object_name desc';
         }
 
-        $years = $dateTo[0] - $dateFrom[0];
+        $years = ($dateTo[0] - $dateFrom[0]) + 1;
+        $start = $dateFrom[0] - 1;
         $dataMonths = [];
-        for($i = $dateFrom[0]; $i <= $dateFrom[0] + $years; $i++) {
+        for($i = $start; $i <= $dateFrom[0] + $years; $i++) {
             for($j = 1; $j < 13; $j++) {
                 if($j < 10) {
                     $dataMonths[] = "counter_0".$j.$i; 
@@ -56,14 +57,16 @@
 
         $indexMonthFrom = array_search("counter_".$dateFrom[1].$dateFrom[0], $dataMonths);
         $indexMonthTo = array_search("counter_".$dateTo[1].$dateTo[0], $dataMonths);
-        for($i = $indexMonthFrom; $i <= $indexMonthTo + 1; $i++) {
+        for($i = $indexMonthFrom - 1; $i <= $indexMonthTo; $i++) {
             $month[] = $dataMonths[$i];
         }
         for($i = 0; $i < count($month); $i++) {
             $tables .= " LEFT JOIN `".$month[$i]."` cnt".$i." ON (cnt".$i.".id_counter = obc.id_counter)";
         }            
         for($i = 0; $i < count($month) - 1; $i++) {
-            $rows .= ", (SUM(cnt".($i+1).".value) - (SUM(cnt".$i.".value))) as cnt".$i."";
+            $rows .= ", (SUM(cnt".($i+1).".value) - (SUM(cnt".$i.".value))) as cnt".$i."";            
+        }
+        for($i = 1; $i < count($month); $i++) {
             $tempMonth = $month[$i];
             $tempMonth = explode('_', $tempMonth);
             $monthForTable[] = $tempMonth[1];
@@ -74,6 +77,7 @@
         while($row = mysqli_fetch_assoc($query)) {
             $queryData[] = $row;
         }
+
         $datas = [];
 
         foreach($queryData as $key => $data) {
@@ -83,7 +87,7 @@
                 $datas[] = $data;                  
             }
         }
-
+        
         $arr = [];
 
         for($i = 0; $i < count($datas); $i++) {
@@ -93,11 +97,9 @@
                 if(!is_null($datas[$i]['cnt'.$j]) || $datas[$i]['cnt'.$j] != 0) {
                     $temp += $datas[$i]['cnt'.$j];
                     $count++;
-                }else{
-                    $temp = 1;
                 }
             }
-            if($temp == 1 || $temp < 0) {
+            if($temp <= 1 || is_null($temp)) {
                 continue;
             }
             $temp = $temp/$count;
@@ -293,13 +295,12 @@
                 if(!is_null($datas[$i]['cnt'.$j]) || $datas[$i]['cnt'.$j] != 0) {
                     $temp += $datas[$i]['cnt'.$j];
                     $count++;
-                }else{
-                    $temp = 1;
                 }
             }
-            if($temp == 1 || $temp < 0) {
+            if($temp <= 1 || is_null($temp)) {
                 continue;
             }
+            $temp = $temp/$count;
             $temp = $temp/$count;
             $arr[$i] = ['rues' => $datas[$i]['rues'], 'object_name' => $datas[$i]['object_name'], 'arendaObj' => $datas[$i]['arenda'], 'areaObj' => $datas[$i]['area'], 'udel' => $temp/$datas[$i]['area']];
             for($j = 0; $j < count($month) - 1; $j++) {

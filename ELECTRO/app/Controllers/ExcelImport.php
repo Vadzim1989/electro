@@ -5,34 +5,67 @@
             require('vendor/db.php');
             require_once("app/Controllers/Excel.php");
 
-            if($data['code_adm'] == 0) {
-                $code_adm = '';
-            } else {
-                $code_adm = $data['code_adm'];
-            }
             $object_name = $data['object_name'];
-            $monthFrom = $data['monthFrom'];
-            $monthTo = $data['monthTo'];
-            $month = explode("_",$monthFrom);
-            
-            $query = mysqli_query($db,"SELECT DISTINCT obj.id_object, obj.object_name, obcal.name as rues, objm.used, ct.name, (sum(cnt2.value) - sum(cnt1.value)) AS value_cnt FROM `object_counter` obc LEFT JOIN `counter_type` ct ON (obc.counter_type = ct.counter_type) LEFT JOIN `object` obj ON(obj.id_object = obc.id_object) LEFT JOIN `$monthFrom` cnt1 ON (cnt1.id_counter = obc.id_counter) LEFT JOIN `$monthTo` cnt2 ON (cnt2.id_counter = obc.id_counter) LEFT JOIN `object_code_adm_list` obcal ON (obj.code_adm = obcal.code_adm) LEFT JOIN `object_mount` objm ON (objm.id_object = obj.id_object) WHERE obj.object_name like '%$object_name%' AND obj.code_adm like '%$code_adm%' AND ct.counter_type = 1 group by 1,2,3,4,5 order by obcal.name");
+            $code_adm = $data['code_adm'];
+            $dateFrom = $data['dateFrom'];
+            $dateTo = $data['dateTo'];
+            $years = $data['years'];
 
+            $dateFrom = explode("-", $dateFrom);
+            $dateTo = explode("-", $dateTo);
+            
+            $dataMonths = [];
+            for($i = $dateFrom[0]; $i <= $dateFrom[0] + $years; $i++) {
+                for($j = 1; $j < 13; $j++) {
+                    if($j < 10) {
+                        $dataMonths[] = "counter_0".$j.$i; 
+                    }else {
+                        $dataMonths[] = "counter_".$j.$i;
+                    }
+                }
+            }
+            $month = [];
+            $monthForTable = [];
+            $tables = "";
+            $rows = "";        
+            $temp = "";
+
+            $indexMonthFrom = array_search("counter_".$dateFrom[1].$dateFrom[0], $dataMonths);
+            $indexMonthTo = array_search("counter_".$dateTo[1].$dateTo[0], $dataMonths);
+            for($i = $indexMonthFrom; $i <= $indexMonthTo + 1; $i++) {
+                $month[] = $dataMonths[$i];
+            }
+            for($i = 0; $i < count($month); $i++) {
+                $tables .= " LEFT JOIN `".$month[$i]."` cnt".$i." ON (cnt".$i.".id_counter = obc.id_counter)";
+            }            
+            for($i = 0; $i < count($month) - 1; $i++) {
+                $rows .= ", (SUM(cnt".($i+1).".value) - (SUM(cnt".$i.".value))) as cnt".$i."";
+                $tempMonth = $month[$i];
+                $tempMonth = explode('_', $tempMonth);
+                $monthForTable[] = $tempMonth[1];
+            }
+
+            $query = mysqli_query($db,"SELECT DISTINCT obj.id_object, obj.object_name, obcal.name as rues, objm.used $rows FROM `object_counter` obc LEFT JOIN `counter_type` ct ON (obc.counter_type = ct.counter_type) LEFT JOIN `object` obj ON(obj.id_object = obc.id_object) $tables LEFT JOIN `object_code_adm_list` obcal ON (obj.code_adm = obcal.code_adm) LEFT JOIN `object_mount` objm ON (objm.id_object = obj.id_object) WHERE obj.object_name like '%$object_name%' AND obj.code_adm like '%$code_adm%' AND ct.counter_type = 1  group by 1,2,3,4 order by obcal.name");
             $queryData = [];
             while($row = mysqli_fetch_assoc($query)) {
                 $queryData[] = $row;
             }
-
             $datas = [];
+
             foreach($queryData as $data) {
-                if(is_null($data['value_cnt']) || $data['value_cnt'] == 0) {
+                if(is_null($data['used']) || $data['used'] == 0) {
                     continue;
                 }else{
-                    $datas[] = $data;
+                    $datas[] = $data;                  
                 }
             }
 
-            $filename = array("","","Удельное потребление эл.энергии на монтированный порт","","");
-            $rows = array("УЭС,ЗУЭС","Наименование объекта","Потребление за ".$month[1],"Задествованная емкость объекта (портов)","Потребление кВт.ч на задействованный порт за месяц","Удельное потребление");
+            $rows = array("УЭС,ЗУЭС","Наименование объекта","Задествованная емкость объекта (портов)","Потребление кВт.ч на задействованный порт за месяц","Удельное потребление");
+            for($i = 0; $i < count($monthForTable); $i++) {
+                array_push($rows,"Потребление за ".$monthForTable[$i]);
+            }
+
+            $filename = array("","","Удельное потребление эл.энергии на монтированный порт","","");            
             $excel = new ExportDataExcel('browser');
             $excel->filename="analis_electro_".date('dmY').".xls";
             $excel->initialize();
@@ -40,18 +73,25 @@
             $excel->addRow($rows);
             $i=3;
 
-            foreach($datas as $data) {
-                if(is_null($data['used']) || $data['used'] == 0) {
-                    $usedkvtmonth = 0;
-                    $usedkvt = 0;
-                } else {
-                    $usedkvtmonth = ($data['value_cnt'])/$data['used'];
-                    $usedkvt = ($usedkvtmonth * 1000)/(24*cal_days_in_month(CAL_GREGORIAN, date('m'), date('y')));
+            $arr = [];
+
+            for($i = 0; $i < count($datas); $i++) {
+                for($j = 0; $j < count($month) - 1; $j++) {
+                    if(!is_null($datas[$i]['cnt'.$j]) || $datas[$i]['cnt'.$j] != 0 || $datas[$i]['cnt'.$j] > 0) {
+                        $temp = $datas[$i]['cnt'.$j];
+                    }else{
+                        $temp = 1;
+                    }
                 }
-                $row = array($data['rues'],$data['object_name'],$data['value_cnt'],$data['used'], round($usedkvtmonth,3), round($usedkvt,3));
-                $excel->addRow($row);
-                $i++;
-            }
+                if($temp == 1 || $temp < 0) {
+                    continue;
+                }
+                $arr[$i] = ['rues' => $datas[$i]['rues'], 'object_name' => $datas[$i]['object_name'], 'used' => $datas[$i]['used'], 'usedKvt' => $temp/$datas[$i]['used'], 'udel' => ($temp/$datas[$i]['used']*1000)/(24*cal_days_in_month(CAL_GREGORIAN, $dateTo[1], $dateTo[0]))];
+                for($j = 0; $j < count($month) - 1; $j++) {
+                    $arr[$i]['cnt'.$j] = $datas[$i]["cnt".$j];
+                }
+                $excel->addRow($arr[$i]);
+            }      
             mysqli_close($db);
             $excel->finalize();
         }
@@ -312,6 +352,100 @@
 
             mysqli_close($db);
             $excel->finalize(); 
+        }
+
+        public function warm($data) {
+            require('vendor/db.php');
+            require_once("app/Controllers/Excel.php");
+
+            $object_name = $data['object_name'];
+            $code_adm = $data['code_adm'];
+            $dateFrom = $data['dateFrom'];
+            $dateTo = $data['dateTo'];
+            $years = $data['years'];
+
+            $dateFrom = explode("-", $dateFrom);
+            $dateTo = explode("-", $dateTo);
+
+            $dataMonths = [];
+            for($i = $dateFrom[0]; $i <= $dateFrom[0] + $years; $i++) {
+                for($j = 1; $j < 13; $j++) {
+                    if($j < 10) {
+                        $dataMonths[] = "counter_0".$j.$i; 
+                    }else {
+                        $dataMonths[] = "counter_".$j.$i;
+                    }
+                }
+            }
+            $month = [];
+            $monthForTable = [];
+            $tables = "";
+            $rows = "";
+            $temp = "";
+    
+            $indexMonthFrom = array_search("counter_".$dateFrom[1].$dateFrom[0], $dataMonths);
+            $indexMonthTo = array_search("counter_".$dateTo[1].$dateTo[0], $dataMonths);
+            for($i = $indexMonthFrom; $i <= $indexMonthTo + 1; $i++) {
+                $month[] = $dataMonths[$i];
+            }
+            for($i = 0; $i < count($month); $i++) {
+                $tables .= " LEFT JOIN `".$month[$i]."` cnt".$i." ON (cnt".$i.".id_counter = obc.id_counter)";
+            }            
+            for($i = 0; $i < count($month) - 1; $i++) {
+                $rows .= ", (SUM(cnt".($i+1).".value) - (SUM(cnt".$i.".value))) as cnt".$i."";
+                $tempMonth = $month[$i];
+                $tempMonth = explode('_', $tempMonth);
+                $monthForTable[] = $tempMonth[1];
+            }
+            
+            $query = mysqli_query($db,"SELECT DISTINCT obj.id_object, obj.object_name, obj.area, obcal.name as rues, oc.id_object as arenda $rows FROM `object_counter` obc LEFT JOIN `counter_type` ct ON (obc.counter_type = ct.counter_type) LEFT JOIN `object` obj ON(obj.id_object = obc.id_object) $tables LEFT JOIN `object_code_adm_list` obcal ON (obj.code_adm = obcal.code_adm) LEFT JOIN `object_contracts` oc ON (obj.id_object = oc.id_object) WHERE obj.object_name like '%$object_name%' AND obj.code_adm like '%$code_adm%' AND ct.counter_type = 2  group by 1,2,3,4,5 order by obcal.name");
+    
+            $queryData = [];
+            while($row = mysqli_fetch_assoc($query)) {
+                $queryData[] = $row;
+            }
+            $datas = [];
+            foreach($queryData as $key => $data) {
+                if(is_null($data['area']) || $data['area'] == 0) {
+                    continue;
+                }else{
+                    $datas[] = $data;  
+                }
+            }
+
+            $rows = array("УЭС,ЗУЭС","Наименование объекта","Принадлежность помещения","Площадь","Потребление Гкал на кв.м.");
+            for($i = 0; $i < count($monthForTable); $i++) {
+                array_push($rows,"Потребление за ".$monthForTable[$i]);
+            }
+    
+            $arr = [];
+            $filename = array("","","Удельное потребление теп.энергии на кв.м. занимаемой площади","","");            
+            $excel = new ExportDataExcel('browser');
+            $excel->filename="analis_warm_".date('dmY').".xls";
+            $excel->initialize();
+            $excel->addRow($filename);
+            $excel->addRow($rows);
+            $i=3;
+
+            for($i = 0; $i < count($datas); $i++) {
+                for($j = 0; $j < count($month) - 1; $j++) {
+                    if(!is_null($datas[$i]['cnt'.$j]) || $datas[$i]['cnt'.$j] != 0) {
+                        $temp = $datas[$i]['cnt'.$j];
+                    }else{
+                        $temp = 1;
+                    }
+                }
+                if($temp == 1 || $temp < 0) {
+                    continue;
+                }
+                $arr[$i] = ['rues' => $datas[$i]['rues'], 'object_name' => $datas[$i]['object_name'], 'arendaObj' => $datas[$i]['arenda'], 'areaObj' => $datas[$i]['area'], 'udel' => $temp/$datas[$i]['area']];
+                for($j = 0; $j < count($month) - 1; $j++) {
+                    $arr[$i]['cnt'.$j] = $datas[$i]["cnt".$j];
+                }    
+                $excel->addRow($arr[$i]);    
+            }
+            mysqli_close($db);
+            $excel->finalize();
         }
     }
 ?>

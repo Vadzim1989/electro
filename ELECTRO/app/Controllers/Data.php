@@ -3,5 +3,13 @@
 namespace App\Controllers;
 
 class Data {
-    public static $data;
+    private $data = [];
+
+    public function set($data) {
+        $this->data = $data;
+    }
+
+    public function get() {
+        return $this->data;
+    }
 };

@@ -92,7 +92,7 @@
                         </td>                            
                         <td class="align-middle"><?= $data['mount'] ?></td>
                         <td class="align-middle"><?= $data['used'] ?></td>
-                        <td class="align-middle"><?= round($data['object_power'],3) ?></td>
+                        <td class="align-middle"><?= isset($data['object_power']) ? round($data['object_power'],3) : 0 ?></td>
                         <td class="align-middle"><?= round((($data['object_power'] * 24 * cal_days_in_month(CAL_GREGORIAN, date('m'), date('y')))),3)?></td>
                         <td class="align-middle">
                             <?php

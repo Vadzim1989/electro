@@ -68,6 +68,7 @@ Router::post('/device/delete', Device::class, 'delete', true);
 Router::post('/device/update', Device::class, 'update', true);
 
 Router::post('/excel/electro', ExcelImport::class, 'electro', true);
+Router::post('/excel/warm', ExcelImport::class, 'warm', true);
 Router::post('/excel/analis', ExcelImport::class, 'analis', true);
 Router::post('/excel/analisArenda', ExcelImport::class, 'analisArenda', true);
 Router::post('/excel/object', ExcelImport::class, 'object', true);

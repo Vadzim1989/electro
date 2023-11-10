@@ -1,9 +1,11 @@
-<h2 class="text-center analis-name">Удельное потребление эл.энергии на монтированный порт</h2>
+<h2 class="text-center analis-name">Удельное потребление теп.энергии на кв.м. занимаемой площади</h2>
 <table class="table table-striped device-table">
     <thead>
         <tr>
             <th id="rues_sort" class="align-middle">УЭС, ЗУЭС</th>
             <th id="object_name_sort" class="align-middle">Название объекта</th>
+            <th id="arenda" class="align-middle">Принадлежность помещения</th>
+            <th id="ar" class="align-middle">Площадь, м²</th>
             <?php
                 for($i = 0; $i < count($monthForTable); $i++) {
                     ?>
@@ -11,11 +13,9 @@
                     <?php
                 }
             ?>
-            <th id="used" class="text-center align-middle">Задействованная емкость объекта</th>
-            <th id="usedKvt" class="text-center align-middle">Потребление кВт.ч на зайдествованный порт</th>
-            <th id="udel" class="text-center align-middle">Удельное потребление</th>
+            <th id="used" class="text-center align-middle">Потребление Гкал на кв.м.</th>
             <th class="align-middle">
-                <form action="./excel/electro" method="post" enctype="multipart/form-data">
+                <form action="./excel/warm" method="post" enctype="multipart/form-data">
                     <input type="hidden" name="code_adm" value="<?=$code_adm?>">
                     <input type="hidden" name="object_name" value="<?=$object_name?>">
                     <input type="hidden" name="dateFrom" value="<?=$_POST['monthFrom']?>">
@@ -34,14 +34,24 @@
                     <td><?=$data['rues']?></td>
                     <td><?=$data['object_name']?></td>
                     <?php
+                        if(isset($data['arendaObj'])) {
+                            ?>
+                                <td class="text-center">Аренда</td>
+                            <?php
+                        }else{
+                            ?>
+                                <td class="text-center">Собственное</td>
+                            <?php
+                        }
+                        ?>
+                        <td><?=$data['areaObj']?></td>
+                        <?php
                         for($i = 0; $i < count($monthForTable); $i++) {
                             ?>
                                 <td class="text-center"><?=$data["cnt".$i]?></td>
                             <?php
                         }
                     ?>
-                    <td class="text-center"><?=$data['used']?></td>
-                    <td class="text-center"><?=round($data['usedKvt'],3)?></td>
                     <td colspan="2" class="text-center"><?=round($data['udel'],3)?></td>
                 </tr>
                 <?php

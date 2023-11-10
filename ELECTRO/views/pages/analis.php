@@ -56,14 +56,12 @@ if (!isset($_SESSION['user'])) {
                         <button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#filterAnaliz">Удельное потребление эл.энергии на монтированный порт</button>
                     </td>
                 </tr>
-                <!--
                 <tr>
                     <td class="align-middle check_analis">&#10004</td>
-                    <td class="align-middle">
-                        <button type="button" class="btn">Удельное потребление тепловой энергии на кв.метр занимаемой площади</button>
+                    <td class="align-middle text-analis">
+                        <button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#filterAnalizWarm">Удельное потребление тепловой энергии на кв.метр занимаемой площади</button>
                     </td>
                 </tr>
--->
                 <tr>
                     <td class="align-middle check_analis">&#10004</td>
                     <td class="align-middle text-analis">

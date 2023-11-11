@@ -106,50 +106,149 @@
                 $code_adm = $data['code_adm'];
             }
             $object_name = $data['object_name'];
-            $monthFrom = $data['monthFrom'];
-            $monthTo = $data['monthTo'];
-            $monthArenda = $data['monthArenda'];
-            $month = explode("_",$monthFrom);
-    
-            $query = mysqli_query($db,"SELECT DISTINCT obj.id_object, obj.object_name, obcal.name as rues, (sum(cnt2.value) - sum(cnt1.value)) AS value_cnt FROM `object_counter` obc LEFT JOIN `counter_type` ct ON (obc.counter_type = ct.counter_type) LEFT JOIN `object` obj ON(obj.id_object = obc.id_object) LEFT JOIN `$monthFrom` cnt1 ON (cnt1.id_counter = obc.id_counter) LEFT JOIN `$monthTo` cnt2 ON (cnt2.id_counter = obc.id_counter) LEFT JOIN `object_code_adm_list` obcal ON (obj.code_adm = obcal.code_adm) LEFT JOIN `object_mount` objm ON (objm.id_object = obj.id_object) WHERE obj.object_name like '%$object_name%' AND obj.code_adm like '%$code_adm%' AND ct.counter_type = 1 group by 1,2,3 order by obcal.name");
+            $dateFrom = $data['dateFrom'];
+            $dateTo = $data['dateTo'];
+            $years = $data['years'];
 
-            $datas = [];
-            while($row = mysqli_fetch_assoc($query)) {
-                $datas[] = $row;
+            $dateFrom = explode("-", $dateFrom);
+            $dateTo = explode("-", $dateTo);
+
+            $start = $dateFrom[0] - 1;
+            $dataMonths = [];
+            for($i = $start; $i <= $dateFrom[0] + $years; $i++) {
+                for($j = 1; $j < 13; $j++) {
+                    if($j < 10) {
+                        $dataMonths[] = "counter_0".$j.$i; 
+                    }else {
+                        $dataMonths[] = "counter_".$j.$i;
+                    }
+                }
             }
-
-            $filter = [];
-            for($i=0; $i<count($datas);$i++){
-                $arenda = mysqli_query($db,"SELECT SUM(value) as arenda FROM `$monthArenda` WHERE `id_counter` IN (SELECT `id_counter` FROM `object_counter_arenda` WHERE `id_object` = '".$datas[$i]['id_object']."' AND `counter_type` = 1)");
+            $dataMonthArenda = [];
+            for($i = $start; $i <= $dateFrom[0] + $years; $i++) {
+                for($j = 1; $j < 13; $j++) {
+                    if($j < 10) {
+                        $dataMonthArenda[] = "arenda_0".$j.$i; 
+                    }else {
+                        $dataMonthArenda[] = "arenda_".$j.$i;
+                    }
+                }
+            }
+    
+            $month = [];
+            $monthArenda = [];
+            $monthForTable = [];
+            $tables = "";
+            $tablesArenda = '';
+            $rows = "";          
+            $rowsArenda = ''; 
+    
+            $indexMonthFrom = array_search("counter_".$dateFrom[1].$dateFrom[0], $dataMonths);
+            $indexMonthTo = array_search("counter_".$dateTo[1].$dateTo[0], $dataMonths);
+            for($i = $indexMonthFrom - 1; $i <= $indexMonthTo; $i++) {
+                $month[] = $dataMonths[$i];
+            }
+            for($i = 0; $i < count($month); $i++) {
+                $tables .= " LEFT JOIN `".$month[$i]."` cnt".$i." ON (cnt".$i.".id_counter = obc.id_counter)";
+            }            
+            for($i = 0; $i < count($month) - 1; $i++) {
+                $rows .= ", (SUM(cnt".($i+1).".value) - (SUM(cnt".$i.".value))) as cnt".$i."";            
+            }
+            for($i = 1; $i < count($month); $i++) {
+                $tempMonth = $month[$i];
+                $tempMonth = explode('_', $tempMonth);
+                $monthForTable[] = $tempMonth[1];
+            }
+    
+            $indexMonthFromArenda = array_search("arenda_".$dateFrom[1].$dateFrom[0], $dataMonthArenda);
+            $indexMonthToArenda = array_search("arenda_".$dateTo[1].$dateTo[0], $dataMonthArenda); 
+            
+            for($i = $indexMonthFromArenda - 1; $i <= $indexMonthToArenda; $i++) {
+                $monthArenda[] = $dataMonthArenda[$i];
+            }
+            
+            
+            for($i = 0; $i < count($monthArenda); $i++) {
+                $tablesArenda .= " LEFT JOIN `".$monthArenda[$i]."` cnt".$i." ON (cnt".$i.".id_counter = obc.id_counter)";
+            } 
+            
+            for($i = 0; $i < count($monthArenda) - 1; $i++) {
+                $rowsArenda .= ", SUM(cnt".($i).".value) as cnt".$i."";                        
+            }
+            $query = mysqli_query($db, "SELECT DISTINCT obj.id_object, obj.object_name, obcal.name as rues $rows FROM `object_counter` obc LEFT JOIN `counter_type` ct ON (obc.counter_type = ct.counter_type) LEFT JOIN `object` obj ON(obj.id_object = obc.id_object) $tables LEFT JOIN `object_code_adm_list` obcal ON (obj.code_adm = obcal.code_adm) LEFT JOIN `object_mount` objm ON (objm.id_object = obj.id_object) WHERE obj.object_name like '%$object_name%' AND obj.code_adm like '%$code_adm%' AND ct.counter_type = 1 group by 1,2,3 order by obcal.name");        
+    
+            while($row = mysqli_fetch_assoc($query)) {
+                $queryData[] = $row;           
+            }
+        
+            $datas = [];
+            
+            for($i=0; $i<count($queryData);$i++){
+                $arenda = mysqli_query($db, "SELECT DISTINCT obc.id_object $rowsArenda FROM `object_counter_arenda` obc $tablesArenda WHERE obc.id_object = '".$queryData[$i]['id_object']."' AND `counter_type` = 1");
                 $arenda = mysqli_fetch_assoc($arenda);
-                $arenda = $arenda['arenda'];
-                if(is_null($arenda) || $arenda == 0) {
-                    continue;
-                }elseif($datas[$i]['value_cnt'] > 0) {
-                    $datas[$i]['arenda'] = $arenda;
-                    $filter[] = $datas[$i];
+                
+                for($j = 0; $j < count($monthArenda) - 1; $j++) {
+                    $queryData[$i]['arn'.$j] = $arenda['cnt'.$j];
+                }
+            }
+            
+            $arr = [];
+            for($i = 0; $i < count($queryData); $i++) {
+                $arr[$i] = array('rues' => $queryData[$i]['rues'], 'object_name' => $queryData[$i]['object_name']);
+                for($j = 0; $j < count($monthArenda) - 1; $j++) {
+                    if(!is_null($queryData[$i]['cnt'.$j]) || !is_null($queryData[$i]['arn'.$j])) {
+                        $arr[$i]['cnt'.$j] = $queryData[$i]['cnt'.$j]; 
+                        $arr[$i]['arn'.$j] = $queryData[$i]['arn'.$j]; 
+                        $arr[$i]['div'.$j] = $queryData[$i]['cnt'.$j] - $queryData[$i]['arn'.$j];
+                        if($arr[$i]['div'.$j]) {
+                            $arr[$i]['proc'.$j] = abs(round(($queryData[$i]['cnt'.$j] - $queryData[$i]['arn'.$j])/(($queryData[$i]['cnt'.$j] + $queryData[$i]['arn'.$j])/2)*100,2));
+                        } else {
+                            $arr[$i]['proc'.$j] = 0;
+                        }
+                    }else {
+                        $arr[$i]['cnt'.$j] = 0; 
+                        $arr[$i]['arn'.$j] = 0; 
+                        $arr[$i]['div'.$j] = 0;
+                        $arr[$i]['proc'.$j] = 0;
+                    }
+                }
+            }
+            
+            
+            for($i = 0; $i < count($arr); $i++) {
+                $count = 0;
+                for($j = 0; $j < count($monthArenda) - 1; $j++) {
+                    if($arr[$i]['arn'.$j] > 0) {
+                        $count++;
+                    }
+                }
+                if($count > 0) {
+                    $datas[] = $arr[$i];
                 }
             }
 
+           
             $filename = array("","","Расхождение показаний по электроэнергии","","");
-            $rows = array("УЭС,ЗУЭС","Наименование объекта","Показания по счетчику ЦТЭ за ".$month[1]." кВт.ч","Показания по счет-фактуре за ".$month[1]." кВт.ч","Разница между показаниями","% расхождения");
+            $rows = array("УЭС,ЗУЭС","Наименование объекта");
+            for($i = 0; $i < count($monthForTable); $i++) {
+                array_push($rows, "ЦТЭ ".$monthForTable[$i], "СФ ".$monthForTable[$i], "Раз.", "%");
+            }
             $excel = new ExportDataExcel('browser');
             $excel->filename="analis_conflict_".date('dmY').".xls";
             $excel->initialize();
             $excel->addRow($filename);
             $excel->addRow($rows);
 
-            foreach($filter as $data) {
-                $counter = $data['value_cnt'];
-                $arenda = $data['arenda'];
-                $div = $counter - $arenda;
-                if($div) {
-                    $proc = ($counter - $arenda)/(($counter+$arenda)/2)*100;
-                } else {
-                    $proc = 0;
+            $arrExcell = [];
+            for($i = 0; $i < count($datas); $i++) {
+                $arrExcell[$i] = ['rues' => $datas[$i]['rues'],'object_name' => $datas[$i]['object_name']];
+                for($j = 0; $j < count($month) - 1; $j++) {
+                    $arrExcell[$i]['cnt'.$j] = $datas[$i]['cnt'.$j];
+                    $arrExcell[$i]['arn'.$j] = $datas[$i]['arn'.$j];
+                    $arrExcell[$i]['div'.$j] = $datas[$i]['div'.$j];
+                    $arrExcell[$i]['proc'.$j] = $datas[$i]['proc'.$j];
                 }
-                $row = array($data['rues'],$data['object_name'],$data['value_cnt'],$data['arenda'], round($div,3), abs(round($proc,3)));
-                $excel->addRow($row);
+                $excel->addRow($arrExcell[$i]);
             }
             mysqli_close($db);
             $excel->finalize();            

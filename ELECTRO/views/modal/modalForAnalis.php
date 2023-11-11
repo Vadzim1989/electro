@@ -110,18 +110,24 @@
                     <div class="mb-3">
                         <label for="object_name">Название объекта</label>
                         <input class="form-control" type="text" name="object_name" id="object_name">
-                    </div>                    
-                    <div class="mb-3">
-                        <label for="date">Дата:</label>
-                        <input class="form-control" type="month" id="date" name="date" required>
                     </div> 
+                    <div class="mb-3">
+                        <label for="date">Дата с:</label>
+                        <input type="month" name="monthFrom" id="monthFrom" class="form-control">
+                    </div>  
+                    <div class="mb-3">
+                        <label for="date">Дата по:</label>
+                        <input type="month" name="monthTo" id="monthTo" class="form-control">
+                    </div>  
                     <div>
                         <label for="sort">Сортировать по...</label>
                         <select name="sort" id="sort"  class="form-control">
                             <option value="obj.object_name">По названию &#8593</option>
                             <option value="obj.object_name desc">По названию &#8595</option>                           
                             <option value="obj.code_adm">По району &#8593</option>                            
-                            <option value="obj.code_adm desc">По району &#8595</option>                            
+                            <option value="obj.code_adm desc">По району &#8595</option>
+                            <option value="u">По % рассхождения &#8593</option>                             
+                            <option value="ud">По % рассхождения &#8595</option>                           
                         </select>
                     </div>    
                 </div>

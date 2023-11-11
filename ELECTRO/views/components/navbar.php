@@ -181,6 +181,20 @@ $dateDiff = date_diff(new DateTime(), new DateTime($date)) -> days;
         transition: all .1s ease-in-out;
     }
 
+    .object_name{
+        max-width: 33.779rem;
+    }
+    .object_rues {
+        max-width: 13.003rem;
+    }
+    .object_address,
+    .object_name {        
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 12rem;
+    }
+
     /* Change color of dropdown links on hover */
     .dropdownContent a:hover {background-color: #ddd;}
 

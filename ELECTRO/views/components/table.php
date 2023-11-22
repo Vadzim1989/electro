@@ -25,7 +25,7 @@
                 №
             </th>
             <th rowspan="2" class="align-middle">
-                <form class="d-flex" action="/search" method="post" role="search">
+                <form class="d-flex" action="./search" method="get" role="search">
                     <input class="form-control" name="object_name" type="search" placeholder="Название объекта (поиск)" aria-label="Search">
                 </form>
             </th>
@@ -64,18 +64,27 @@
                             <?php
                                 $id_object = $data['id_object'];
                                 $id_contract = mysqli_query($db, "SELECT `id_contract` FROM `object_contracts` WHERE `id_object` = '$id_object'");
-                                $id_contract = mysqli_fetch_row($id_contract);
-                                if(isset($id_contract[0])) {
-                                    ?>
-                                        <a href="/arenda?idc=<?=$id_contract[0]?>&ido=<?=$data['id_object']?>&cda=<?=$data['code_adm']?>"><span class='btn btn-success'>&#128220</span></a>
-                                    <?php
+                                $id_contract = mysqli_fetch_all($id_contract);
+                                if(count($id_contract) > 0) {
+                                    if(count($id_contract) == 1) {
+                                        ?>
+                                            <a href="/arenda?idc=<?=$id_contract[0][0]?>&ido=<?=$data['id_object']?>&cda=<?=$data['code_adm']?>"><span class='btn btn-success'>&#128220</span></a>
+                                        <?php
+                                    } else {
+                                        ?>
+                                            <form class="" action="./filter" method="post" enctype="multipart/form-data">
+                                                <input type="hidden" name="filter_arendaList" value="1">
+                                                <input type="hidden" name="id" value="<?=$id_object?>">
+                                                <button type="submit" class="btn btn-warning">&#128220</button>
+                                            </form>
+                                        <?php
+                                    }
                                 } else {
                                     ?>  
                                         <a href="/contracts"><span class='btn btn-outline-secondary'>&#10133</span></a>
                                     <?php
                                 }
-                            ?>
-                            
+                            ?>                            
                         </td>
                         <td class="align-middle text-center">
                             <?php

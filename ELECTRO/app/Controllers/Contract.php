@@ -156,4 +156,40 @@ class Contract {
         Router::redirect('/contracts');
         
     }
+
+    public function clone($data)
+    {
+        require('vendor/db.php');
+
+        $id = $data['id'];
+
+        $query = mysqli_query($db, "SELECT * FROM contracts WHERE id_contract = '$id' LIMIT 1");
+        $query = mysqli_fetch_assoc($query);
+
+        $landlord =         $query['landlord'];
+        $unp =              $query['unp'];
+        $landlord_address = $query['landlord_address'];
+        $object =           $query['object'];
+        $equip_address =    $query['equip_address'];
+        $contract_num =     $query['contract_num'];
+        $contract_start =   $query['contract_start'];
+        $contract_end =     $query['contract_end'];
+        $landlord_area =    $query['landlord_area'];
+        $wall =             $query['wall'];
+        $length =           $query['length'];
+        $bav =              $query['bav'];
+        $byn =              $query['byn'];
+        $nds =              $query['nds'];
+        $pay_attribute =    $query['pay_attribute'];
+        $pay_date =         $query['pay_date'];
+        $comments =         $query['comments'];
+        $area =             $query['area'];
+        $part =             $query['part'];
+
+        mysqli_query($db, "INSERT INTO `contracts`(`id_contract`, `landlord`, `unp`, `landlord_address`, `object`, `equip_address`, `contract_num`, `contract_start`, `contract_end`, `landlord_area`, `wall`, `length`, `bav`, `byn`, `nds`, `pay_attribute`, `pay_date`, `comments`, `area`, `part`, `code_adm`) VALUES (NULL, '$landlord', '$unp', '$landlord_address', '$object', '$equip_address', '$contract_num', '$contract_start', '$contract_end', '$landlord_area', '$wall', '$length', '$bav', '$byn', '$nds', '$pay_attribute', '$pay_date', '$comments', '$area', '$part', NULL)");
+
+        mysqli_close($db);
+
+        Router::redirect('/contracts');
+    }
 }

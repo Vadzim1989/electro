@@ -36,7 +36,7 @@ mysqli_close($db);
                 <tr>
                     <th rowspan="2" class="align-middle">Принадлежность к объекту</th>
                     <th rowspan="2" class="align-middle">
-                        <form class="d-flex" action="/search" method="post" role="search">
+                        <form class="d-flex" action="./search" method="get" role="search">
                             <input class="form-control me-2" name="landlord" type="search" placeholder="Арендодатель (поиск)" aria-label="Search">
                         </form>
                     </th>
@@ -44,7 +44,7 @@ mysqli_close($db);
                     <th rowspan="2" class="align-middle">Контакты арендадателя</th>
                     <th rowspan="2" class="align-middle">Объект</th>
                     <th rowspan="2" class="align-middle">
-                        <form class="d-flex" action="/search" method="post" role="search">
+                        <form class="d-flex" action="./search" method="get" role="search">
                             <input class="form-control me-2" name="address" type="search" placeholder="Адрес аренды (поиск)" aria-label="Search">
                         </form>
                     </th>
@@ -78,14 +78,14 @@ mysqli_close($db);
                             <td class="align-middle text-center"><?= $data["contract_start"] ?></td>
                             <td class="align-middle text-center"><?= $data["contract_end"] ?></td>
                             <td class="align-middle text-center" colspan="2">
-                                <a class="btn btn-outline-success" title="Подробнее" href="/arenda?idc=<?=$data['id_contract']?>&ido=<?=$data['id_object']?>&cda=<?=$data['code_adm']?>">&#9997</a>
+                                <a class="btn btn-outline-success" title="Подробнее" href="./arenda?idc=<?=$data['id_contract']?>&ido=<?=$data['id_object']?>&cda=<?=$data['code_adm']?>">&#9997</a>
                             </td>
                         </tr>
                     <?php
                 }
             ?>
         </tbody>
-        <tfoot class="sticky-bottom bg-success-subtle">
+        <tfoot id="footer" class="sticky-bottom bg-success-subtle">
             <tr>
                 <td class="text-center" colspan="11"><?=count($datas)?> договоров аренды</td>
             </tr>

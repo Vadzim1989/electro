@@ -4,16 +4,10 @@
         <tr>
             <th id="rues_sort" class="align-middle" <?php if(count($monthForTable) > 5) echo ("style='font-size: .75rem;'")?>>УЭС, ЗУЭС</th>
             <th id="object_name_sort" class="align-middle" <?php if(count($monthForTable) > 5) echo ("style='font-size: .75rem;'")?>>Название объекта</th>
-            <?php
-                for($i = 0; $i < count($monthForTable); $i++) {
-                    ?>
-                        <th id="counter" class="text-center align-middle" <?php if(count($monthForTable) > 5) echo ("style='font-size: .75rem;'")?>>ЦТЭ <?=$monthForTable[$i]?></th>
-                        <th id="counter" class="text-center align-middle" <?php if(count($monthForTable) > 5) echo ("style='font-size: .75rem;'")?>>СФ <?=$monthForTable[$i]?></th>
-                        <th id="counter" class="text-center align-middle" <?php if(count($monthForTable) > 5) echo ("style='font-size: .75rem;'")?>>Раз.</th>
-                        <th id="counter" class="text-center align-middle">&#8240</th>
-                    <?php
-                }
-            ?>
+            <th id="counter" class="text-center align-middle">показания по ЦТЭ</th>
+            <th id="counter" class="text-center align-middle">показания по СФ</th>
+            <th id="counter" class="text-center align-middle">Разница</th>
+            <th id="counter" class="text-center align-middle">%-рассхождения</th>
             <th>
                 <form action="./excel/analis" method="post" enctype="multipart/form-data">
                     <input type="hidden" name="code_adm" value="<?=$code_adm?>">
@@ -31,26 +25,12 @@
             for($i = 0; $i < count($datas); $i++) {
                 ?>
                 <tr>
-                    <td <?php if(count($monthForTable) > 5) echo ("style='font-size: .8rem;'")?>><?=$datas[$i]['rues']?></td>
-                    <td class="object_name" <?php if(count($monthForTable) > 5) echo ("style='font-size: .8rem;'")?>><?=$datas[$i]['object_name']?></td>
-                    <?php
-                        for($j = 0; $j < count($monthForTable) - 1; $j++) {
-                            ?>
-                                <td class="text-center align-middle"><?php if($datas[$i]['cnt'.$j]) {echo (round($datas[$i]['cnt'.$j],2));} else echo ""?></td>
-                                <td class="text-center align-middle"><?php if($datas[$i]['arn'.$j]) {echo (round($datas[$i]['arn'.$j],2));} else echo "" ?></td>
-                                <td class="text-center align-middle"><?php if($datas[$i]['div'.$j]) {echo (round($datas[$i]['div'.$j],2));} else echo "" ?></td>
-                                <td class="text-center align-middle"><?php if($datas[$i]['proc'.$j]) {echo (round($datas[$i]['proc'.$j],2));} else echo "" ?></td>
-                            <?php
-                        }
-                        for($j = count($monthForTable) - 1; $j < count($monthForTable); $j++) {
-                            ?>
-                                <td class="text-center align-middle"><?php if($datas[$i]['cnt'.$j]) {echo (round($datas[$i]['cnt'.$j],2));} else echo ""?></td>
-                                <td class="text-center align-middle"><?php if($datas[$i]['arn'.$j]) {echo (round($datas[$i]['arn'.$j],2));} else echo "" ?></td>
-                                <td class="text-center align-middle"><?php if($datas[$i]['div'.$j]) {echo (round($datas[$i]['div'.$j],2));} else echo "" ?></td>
-                                <td colspan="2" class="text-center align-middle"><?php if($datas[$i]['proc'.$j]) {echo (round($datas[$i]['proc'.$j],2));} else echo "" ?></td>
-                            <?php
-                        }
-                    ?>
+                    <td><?=$datas[$i]['rues']?></td>
+                    <td class="object_name"><?=$datas[$i]['object_name']?></td>
+                    <td class="text-center align-middle"><?=$datas[$i]['cnt']?></td>
+                    <td class="text-center align-middle"><?=$datas[$i]['arn']?></td>
+                    <td class="text-center align-middle"><?=round($datas[$i]['div'],2)?></td>
+                    <td colspan="2" class="text-center align-middle"><?=$datas[$i]['proc']?></td>
                 </tr>
                 <?php
             }

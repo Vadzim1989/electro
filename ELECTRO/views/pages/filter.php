@@ -6,21 +6,21 @@ if(!$_SESSION['user']) {
 }
 require_once('vendor/db.php');
 
-if(isset($_POST['filter_arenda'])) {
-    $code_adm = $_POST['code_adm'] != 0 ? $_POST['code_adm'] : '';
-    $num = $_POST['contract_num'] ? $_POST['contract_num'] : '';
-    $address = $_POST['equip_address'] ? $_POST['equip_address'] : '';
-    $area = $_POST['landlord_area'] ? $_POST['landlord_area'] : '';
-    $sort = $_POST['sort'];
+if(isset($_GET['filter_arenda'])) {
+    $code_adm = $_GET['code_adm'] != 0 ? $_GET['code_adm'] : '';
+    $num = $_GET['contract_num'] ? $_GET['contract_num'] : '';
+    $address = $_GET['equip_address'] ? $_GET['equip_address'] : '';
+    $area = $_GET['landlord_area'] ? $_GET['landlord_area'] : '';
+    $sort = $_GET['sort'];
     $area = str_replace(',','.',$area);
     
-    if(isset($_POST['data'])) {
-        $choice = $_POST['data'];
+    if(isset($_GET['data'])) {
+        $choice = $_GET['data'];
     }else {
         $choice = '';
     }
 
-    if(isset($_POST['data'])) {
+    if(isset($_GET['data'])) {
         if($code_adm) {
             $arendas = mysqli_query($db, "SELECT c.`id_contract`, c.`landlord`, c.`unp`, c.`landlord_address`, c.`object`, c.`equip_address`, c.`contract_num`, c.`contract_start`, c.`contract_end`, c.`landlord_area`, c.`wall`, c.`length`, c.`bav`, c.`byn`, c.`nds`, c.`pay_attribute`, c.`pay_date`, c.`comments`, c.`area`, c.`part`, oc.`id_object`, o.`object_name`, o.`code_adm`, ocal.name as rues, c.code_adm as code FROM `contracts` c LEFT JOIN `object_contracts` oc ON (c.`id_contract` = oc.`id_contract`) LEFT JOIN `object` o ON (oc.`id_object` = o.`id_object`) LEFT JOIN `object_code_adm_list` ocal ON (c.code_adm = ocal.code_adm) WHERE (contract_num like '%$num%' or contract_num like '$num') and (equip_address like '%$address%' or equip_address like '$address') and (landlord_area like '%$area%' or landlord_area like '$area') and oc.`id_object` is null and c.code_adm like '%$code_adm%' order by $sort");
         }else {
@@ -39,19 +39,19 @@ if(isset($_POST['filter_arenda'])) {
         $datas[] = $row;
     }
     //Заебали!
-} elseif(isset($_POST['filter_object'])) {
-    $name = isset($_POST['object_name']) ? $_POST['object_name'] : '';
-    $code_adm = $_POST['code_adm'] == 0 ? '' : $_POST['code_adm'];
-    $sort = $_POST['sort'];
+} elseif(isset($_GET['filter_object'])) {
+    $name = isset($_GET['object_name']) ? $_GET['object_name'] : '';
+    $code_adm = $_GET['code_adm'] == 0 ? '' : $_GET['code_adm'];
+    $sort = $_GET['sort'];
     
-    $contract = isset($_POST['contract_num']) ? $_POST['contract_num'] : '';
-    $area = isset($_POST['area']) ? $_POST['area'] : '';
-    $landlord = isset($_POST['landlord']) ? $_POST['landlord'] : '';
+    $contract = isset($_GET['contract_num']) ? $_GET['contract_num'] : '';
+    $area = isset($_GET['area']) ? $_GET['area'] : '';
+    $landlord = isset($_GET['landlord']) ? $_GET['landlord'] : '';
     $area = str_replace(',','.',$area);
 
-    $obj = isset($_POST['object_filter']) ? $_POST['object_filter'] : '';
-    $dev = isset($_POST['device_filter']) ? $_POST['device_filter'] : '';
-    $cnt = isset($_POST['counter_filter']) ? $_POST['counter_filter'] : '';
+    $obj = isset($_GET['object_filter']) ? $_GET['object_filter'] : '';
+    $dev = isset($_GET['device_filter']) ? $_GET['device_filter'] : '';
+    $cnt = isset($_GET['counter_filter']) ? $_GET['counter_filter'] : '';
     
     if(!$contract && !$area && !$landlord) {
         if($obj) {
@@ -103,9 +103,9 @@ if(isset($_POST['filter_arenda'])) {
     while($row = mysqli_fetch_assoc($objects)) {
         $datas[] = $row;
     }
-} elseif(isset($_POST['filter_counter'])) {
-    $year = $_POST['year'];
-    $id = $_POST['id_object'];
+} elseif(isset($_GET['filter_counter'])) {
+    $year = $_GET['year'];
+    $id = $_GET['id_object'];
 
     $jan = "counter_01".$year;
     $feb = "counter_02".$year;
@@ -151,6 +151,15 @@ if(isset($_POST['filter_arenda'])) {
             $arendas[] = $row;
         }
     }    
+} elseif(isset($_GET['filter_arendaList'])) {
+    $id_object = $_GET['id'];
+
+    $arendas = mysqli_query($db, "SELECT c.`id_contract`, c.`landlord`, c.`unp`, c.`landlord_address`, c.`object`, c.`equip_address`, c.`contract_num`, c.`contract_start`, c.`contract_end`, c.`landlord_area`, c.`wall`, c.`length`, c.`bav`, c.`byn`, c.`nds`, c.`pay_attribute`, c.`pay_date`, c.`comments`, c.`area`, c.`part`, oc.`id_object`, o.`object_name`, o.`code_adm`, ocal.name as rues, c.code_adm as code FROM `contracts` c LEFT JOIN `object_contracts` oc ON (c.`id_contract` = oc.`id_contract`) LEFT JOIN `object` o ON (oc.`id_object` = o.`id_object`) LEFT JOIN `object_code_adm_list` ocal ON (c.code_adm = ocal.code_adm) WHERE o.id_object = '$id_object'");
+
+    $datas = [];
+    while($row = mysqli_fetch_assoc($arendas)) {
+        $datas[] = $row;
+    }
 }
 
 ?>
@@ -190,15 +199,18 @@ if(isset($_POST['filter_arenda'])) {
 </style>
 <body>
 <?php
-    if(isset($_POST['filter_arenda'])) {
+    if(isset($_GET['filter_arenda'])) {
         require_once('views/components/filters/filterArenda.php');
         include('views/modal/modalForContracts.php');
-    }elseif(isset($_POST['filter_object'])){
+    }elseif(isset($_GET['filter_object'])){
         require_once('views/components/filters/filterObject.php');
         include('views/modal/modalForObject.php');
-    }elseif(isset($_POST['filter_counter'])) {
+    }elseif(isset($_GET['filter_counter'])) {
         require_once('views/components/filters/filterCounter.php');
         include('views/modal/modalForCounters.php');
+    }elseif(isset($_GET['filter_arendaList'])) {
+        require_once('views/components/filters/filterArenda.php');
+        include('views/modal/modalForContracts.php');
     }
     include('views/modal/modalForNavbar.php');
     mysqli_close($db);

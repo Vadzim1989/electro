@@ -61,6 +61,8 @@ for($i = 0; $i < 12; $i++) {
         mysqli_query($db, "CREATE TABLE `".$monthArenda[$i]."` (`id_counter` INT(10) NOT NULL DEFAULT '0', `value` DECIMAL(10,3) NOT NULL DEFAULT '0', `pay` DECIMAL(10,3) NULL DEFAULT NULL, `date_input` DATE NOT NULL, UNIQUE INDEX `id_counter` (`id_counter`) USING BTREE)");
     };
 };
+
+/*
 // коннект к БД с показаниями счетчиков
 
 $counterConn = mysqli_connect('10.245.31.5', 'counter', '@1QAZwsx', 'ctell');
@@ -109,13 +111,16 @@ if(!$_SESSION['user']['counter']){
         
     };
 };
-
+*/
 
 $query = mysqli_query($db, "SELECT obc.id_counter, obc.online, obc.transform, obc.sn, obc.counter_type, ct.name, jan.value AS jan, f.value AS feb, mar.value AS mar, apr.value AS apr, may.value AS may, jun.value AS jun, jul.value AS jul, aug.value AS aug, s.value AS sep, o.value AS oct, n.value AS nov, d.value AS december  FROM `object_counter` obc LEFT JOIN `counter_type` ct ON (obc.counter_type = ct.counter_type) LEFT JOIN `$month[0]` jan ON (jan.id_counter = obc.id_counter) LEFT JOIN `$month[1]` f ON (f.id_counter = obc.id_counter) LEFT JOIN `$month[2]` mar ON (mar.id_counter = obc.id_counter) LEFT JOIN `$month[3]` apr ON (apr.id_counter = obc.id_counter) LEFT JOIN `$month[4]` may ON (may.id_counter = obc.id_counter) LEFT JOIN `$month[5]` jun ON (jun.id_counter = obc.id_counter) LEFT JOIN `$month[6]` jul ON (jul.id_counter = obc.id_counter) LEFT JOIN `$month[7]` aug ON (aug.id_counter = obc.id_counter) LEFT JOIN `$month[8]` s ON (s.id_counter = obc.id_counter) LEFT JOIN `$month[9]` o ON (o.id_counter = obc.id_counter) LEFT JOIN `$month[10]` n ON (n.id_counter = obc.id_counter) LEFT JOIN `$month[11]` d ON (d.id_counter = obc.id_counter) WHERE obc.id_object = '$id'");
 $datas = [];
 while($row = mysqli_fetch_assoc($query)) {
     $datas[] = $row;
 }
+
+$rues = mysqli_query($db, "SELECT obcal.name FROM `object_code_adm_list` obcal WHERE obcal.code_adm in (select code_adm from `object` where id_object = '$id')");
+$rues = mysqli_fetch_assoc($rues);
 
 $object = mysqli_query($db, "SELECT `object_name` FROM `object` WHERE `id_object` = '$id'");
 $object = mysqli_fetch_assoc($object);
@@ -155,11 +160,6 @@ if(isset($arenda)) {
     }
 }
 
-
-// $counterConn = mysqli_connect('10.245.31.5', 'counter', '@1QAZwsx', 'ctell');
-// $data = mysqli_query($counterConn, "SELECT m.c_id, v0ind FROM bm_cnt_data INNER JOIN (SELECT c_id, MAX(id) AS maxid FROM bm_cnt_data WHERE c_id = (select c_id from bm_cnts where fact_num like '%191110' LIMIT 1)) AS m where bm_cnt_data.id = m.maxid");
-// $data = mysqli_fetch_assoc($data);
-// var_dump($data);
 ?>
 
 <style>
@@ -184,7 +184,7 @@ if(isset($arenda)) {
 
 <body>
     <?php Page::part('navbar'); ?>
-    <h2 class="text-center">&#127969 <?=$object['object_name']?></h2>
+    <h2 class="text-center"><?=$rues['name']?> - &#127969 <?=$object['object_name']?></h2>
     <table class="table table-striped">
         <thead>
             <tr>
@@ -216,7 +216,7 @@ if(isset($arenda)) {
                 foreach ($datas as $key => $data) {
                     # code...
                     ?>
-                        <tr>
+                        <tr class="<?php echo ($data['counter_type'] == 1 ? "bg-info-subtle" : "bg-warning-subtle" )?>">
                             <td class="align-middle id_counter"><?= $data["id_counter"] ?></td>
                             <td class="align-middle name"><?= $data["name"] ?></td>
                             <td class="align-middle"><?= $data["sn"] ?></td>
@@ -224,7 +224,7 @@ if(isset($arenda)) {
                                 <?php
                                     if($data["jan"]) {
                                         ?>
-                                            <button type="button" class="<?php if($data['online']) echo 'btn btn-success'; else echo 'btn btn-outline-secondary' ?>" data-bs-toggle="modal" data-bs-target="#addCounterData" month="январь" cnt-id="<?=$data['id_counter']?>" cnt-value="<?=$data['jan']?>" obj="<?=$id?>" cnt-table="<?=$jan?>"><?=$data['jan']?></button>
+                                            <button type="button" class="<?php if($data['online']) echo 'btn btn-success'; else echo 'btn btn-outline-secondary'?>" data-bs-toggle="modal" data-bs-target="#addCounterData" month="январь" cnt-id="<?=$data['id_counter']?>" cnt-value="<?=$data['jan']?>" obj="<?=$id?>" cnt-table="<?=$jan?>"><?=$data['jan']?></button>
                                         <?php
                                     } else {
                                         ?>
@@ -392,10 +392,10 @@ if(isset($arenda)) {
                                     $prevQeury = mysqli_query($db, "SELECT c.value FROM `$table` WHERE `id_counter` = '$idCnt'");                                    
                                     if($prevQeury){
                                         $prevDec = mysqli_fetch_assoc($prevQeury);
-                                        if($prevDec['value']-$data['jan'] < 0) {
+                                        if($data['jan'] - $prevDec['value'] < 0) {
                                             echo "0";
                                         } else {
-                                            echo round(($prevDec['value']-$data['jan'])*$data['transform'],2);
+                                            echo round(($data['jan'] - $prevDec['value'])*$data['transform'],2);
                                         }
                                     }else{
                                         echo "0";
@@ -530,8 +530,7 @@ if(isset($arenda)) {
                 <th>
                     <button type="button" title="Добавить показания" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCounterArenda" id-object="<?=$id?>" obj-name="<?=$object['object_name']?>">&#10010</button>
                 </th>
-                <th></th>
-                <th></th>
+                <th class="align-middle pe-3" style="font-size: 1.1rem; margin-right: 1rem;">С-Ф</th>
             </tr>
         </thead> 
         <tbody>
@@ -539,7 +538,7 @@ if(isset($arenda)) {
                 foreach ($arendas as $key => $data) {
                     # code...
                     ?>
-                        <tr>
+                        <tr class="<?php echo ($data['counter_type'] == 1 ? "bg-info-subtle" : "bg-warning-subtle" )?>">
                             <td class="align-middle id_counter"><?=$data['id_counter']?></td>
                             <td class="align-middle name">Счет-фактура</td>
                             <td class="align-middle name"><?= $data["name"] ?></td>

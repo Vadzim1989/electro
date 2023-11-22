@@ -182,7 +182,7 @@
             <div class="modal-header">
                 <h1 class="modal-title fs-5" id="filterTitle">Фильтр по объектам</h1>
             </div>
-            <form class="" action="./filter" method="post" enctype="multipart/form-data">    
+            <form class="" action="./filter" method="get" enctype="multipart/form-data">    
                 <div class="modal-body">
                     <input type="hidden" name="filter_object" value="1">
                     <div class="">
@@ -271,6 +271,7 @@
         </div>
     </div>
 </div>
+
 
 
 <!-- Обработка кнопки вызова модального окна -->
@@ -368,3 +369,5 @@
         })
     }
 </script>
+
+

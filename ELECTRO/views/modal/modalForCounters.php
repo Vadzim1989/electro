@@ -185,7 +185,7 @@
             <div class="modal-header">
                 <h1 class="modal-title fs-5" id="filterTitle">Фильтр по годам</h1>
             </div>
-            <form class="mt-4" action="/filter" method="post" enctype="multipart/form-data">    
+            <form class="mt-4" action="/filter" method="get" enctype="multipart/form-data">    
                 <div class="modal-body">
                     <input type="hidden" name="filter_counter" value="1">
                     <input type="hidden" name="id_object" id="id_object_filter">
@@ -279,6 +279,7 @@
             const month = button.getAttribute('month');
             const table = button.getAttribute('cnt-table');
             const object = button.getAttribute('obj');
+            const name = button.getAttribute('cnt-name');
 
             const title = addCounterData.querySelector('#addCounterDataTitle');
             const idCounter = addCounterData.querySelector('#id_counter');

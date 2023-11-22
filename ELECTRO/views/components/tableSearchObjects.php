@@ -3,7 +3,7 @@
             <tr>
                 <th rowspan="2" class="align-middle">№</th>
                 <th rowspan="2" class="align-middle">
-                    <form class="d-flex" action="/search" method="post" role="search">
+                    <form class="d-flex" action="./search" method="get" role="search">
                         <input class="form-control me-2" name="object_name" type="search" placeholder="<?=$search?>" aria-label="Search">
                     </form>
                 </th>

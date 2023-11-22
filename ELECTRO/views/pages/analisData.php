@@ -196,7 +196,7 @@
             $tables .= " LEFT JOIN `".$month[$i]."` cnt".$i." ON (cnt".$i.".id_counter = obc.id_counter)";
         }            
         for($i = 0; $i < count($month) - 1; $i++) {
-            $rows .= ", (SUM(cnt".($i+1).".value) - (SUM(cnt".$i.".value))) as cnt".$i."";            
+            $rows .= ", (SUM(cnt".($i+1).".value) - (SUM(cnt".$i.".value)))*obc.transform as cnt".$i."";            
         }
         for($i = 1; $i < count($month); $i++) {
             $tempMonth = $month[$i];
@@ -219,7 +219,7 @@
         for($i = 0; $i < count($monthArenda) - 1; $i++) {
             $rowsArenda .= ", SUM(cnt".($i).".value) as cnt".$i."";                        
         }
-        $query = mysqli_query($db, "SELECT DISTINCT obj.id_object, obj.object_name, obcal.name as rues $rows FROM `object_counter` obc LEFT JOIN `counter_type` ct ON (obc.counter_type = ct.counter_type) LEFT JOIN `object` obj ON(obj.id_object = obc.id_object) $tables LEFT JOIN `object_code_adm_list` obcal ON (obj.code_adm = obcal.code_adm) LEFT JOIN `object_mount` objm ON (objm.id_object = obj.id_object) WHERE obj.object_name like '%$object_name%' AND obj.code_adm like '%$code_adm%' AND ct.counter_type = 1 group by 1,2,3 order by $sort");        
+        $query = mysqli_query($db, "SELECT DISTINCT obj.id_object, obc.transform, obj.object_name, obcal.name as rues $rows FROM `object_counter` obc LEFT JOIN `counter_type` ct ON (obc.counter_type = ct.counter_type) LEFT JOIN `object` obj ON(obj.id_object = obc.id_object) $tables LEFT JOIN `object_code_adm_list` obcal ON (obj.code_adm = obcal.code_adm) LEFT JOIN `object_mount` objm ON (objm.id_object = obj.id_object) WHERE obj.object_name like '%$object_name%' AND obj.code_adm like '%$code_adm%' AND ct.counter_type = 1 group by 1,2,3,4 order by $sort");        
 
         while($row = mysqli_fetch_assoc($query)) {
             $queryData[] = $row;           
@@ -239,40 +239,24 @@
         $arr = [];
         for($i = 0; $i < count($queryData); $i++) {
             $arr[$i] = array('rues' => $queryData[$i]['rues'], 'object_name' => $queryData[$i]['object_name']);
+            $arr[$i]['cnt'] = 0;
+            $arr[$i]['arn'] = 0;
             for($j = 0; $j < count($monthArenda) - 1; $j++) {
-                if(!is_null($queryData[$i]['cnt'.$j]) || !is_null($queryData[$i]['arn'.$j])) {
-                    $arr[$i]['cnt'.$j] = $queryData[$i]['cnt'.$j]; 
-                    $arr[$i]['arn'.$j] = $queryData[$i]['arn'.$j]; 
-                    $arr[$i]['div'.$j] = $queryData[$i]['cnt'.$j] - $queryData[$i]['arn'.$j];
-                    if($arr[$i]['div'.$j]) {
-                        $arr[$i]['proc'.$j] = abs(round(($queryData[$i]['cnt'.$j] - $queryData[$i]['arn'.$j])/(($queryData[$i]['cnt'.$j] + $queryData[$i]['arn'.$j])/2)*100,2));
-                    } else {
-                        $arr[$i]['proc'.$j] = 0;
-                    }
-                }else {
-                    $arr[$i]['cnt'.$j] = 0; 
-                    $arr[$i]['arn'.$j] = 0; 
-                    $arr[$i]['div'.$j] = 0;
-                    $arr[$i]['proc'.$j] = 0;
-                }
+                $arr[$i]['cnt'] += $queryData[$i]['cnt'.$j]; 
+                $arr[$i]['arn'] += $queryData[$i]['arn'.$j];
             }
+            if(is_null($arr[$i]['cnt']) || is_null($arr[$i]['arn']) || $arr[$i]['cnt'] < 1 || $arr[$i]['arn'] < 1 || $arr[$i]['cnt'] == $arr[$i]['arn']) {
+                continue;
+            }
+
+            $arr[$i]['div'] = $arr[$i]['cnt'] - $arr[$i]['arn'];
+            $arr[$i]['proc'] = round($arr[$i]['div']/(($arr[$i]['cnt'] + $arr[$i]['arn'])/2)*100,2);
         }
         
-        
-        for($i = 0; $i < count($arr); $i++) {
-            $count = 0;
-            $proc = 0;
-
-            for($j = 0; $j < count($monthArenda) - 1; $j++) {
-                if($arr[$i]['arn'.$j] > 0) {
-                    $count++;
-                    $proc = $arr[$i]['proc'.$j];
-                }
-            }
-            
-            if($count > 0) {
-                $arr[$i]['proc'] = $proc;
-                $datas[] = $arr[$i];
+        foreach ($arr as $data) {
+            # code...
+            if(isset($data['div']) && $data['div'] != 0) {
+                $datas[] = $data;
             }
         }
 

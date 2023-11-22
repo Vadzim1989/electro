@@ -52,6 +52,7 @@ Router::post('/object/remark', Obj::class, 'remark', true);
 Router::post('/contract/add', Contract::class, 'add', true);
 Router::post('/contract/update', Contract::class, 'update', true);
 Router::post('/contract/delete', Contract::class, 'delete', true);
+Router::post('/contract/clone', Contract::class, 'clone', true);
 
 Router::post('/counter/add', Counter::class, 'add', true);
 Router::post('/counter/delete', Counter::class, 'delete', true);

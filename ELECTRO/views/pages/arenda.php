@@ -33,11 +33,17 @@ $datas = [];
         <div class="p-3 mb-4 mt-4 bg-light rounded-3">
             <div class="container-fluid d-flex flex-row justify-content-between">
                 <h1 class="display-5 fw-bold">Информация по аренде</h1>
-                <form class="deleteForm" action="./contract/delete" method="post" enctype="multipart/form-data">
-                    <input type="hidden" class="id_contract" name="id_contract" id="id_contract" value="<?=$id_contract?>">
-                    <input type="hidden" class="id_contract" name="object_id" id="object_id" value="<?=$id_object?>">
-                    <button type="submit" class="btn btn-danger">Удалить</button>
-                </form>
+                <div class="d-flex flex-row justify-content-end">
+                    <form action="./contract/clone" method="post">
+                        <input type="hidden" name="id" value="<?= $id_contract ?>">
+                        <button type="submit" class="btn btn-success">Клонировать</button>
+                    </form>
+                    <form class="deleteForm ms-5" action="./contract/delete" method="post" enctype="multipart/form-data">
+                        <input type="hidden" class="id_contract" name="id_contract" id="id_contract" value="<?=$id_contract?>">
+                        <input type="hidden" class="id_contract" name="object_id" id="object_id" value="<?=$id_object?>">
+                        <button type="submit" class="btn btn-danger" onclick="deleteDataFromArendaCounter()">Удалить</button>
+                    </form>
+                </div>
             </div>
         </div>
         <form class="mt-4" action="/contract/update" method="post" enctype="multipart/form-data">

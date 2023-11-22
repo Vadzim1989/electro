@@ -33,6 +33,7 @@ $dateDiff = date_diff(new DateTime(), new DateTime($date)) -> days;
             loader.textContent = "";
         }, 5000000 * n)
     }
+
     function infoFocus() {
         const btn = document.querySelector('.info-down');
         btn.innerHTML = "&#128195";

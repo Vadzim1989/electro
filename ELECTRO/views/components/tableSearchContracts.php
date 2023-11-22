@@ -4,16 +4,16 @@
                 <th rowspan="2" class="align-middle">Район</th>
                 <th rowspan="2" class="align-middle">Принадлежность к объекту</th>
                 <th rowspan="2" class="align-middle">
-                    <form class="d-flex" action="/search" method="post" role="search">
-                        <input class="form-control me-2" name="landlord" type="search" placeholder="<?php if(isset($_POST['landlord'])) echo $search?>" aria-label="Search">
+                    <form class="d-flex" action="./search" method="get" role="search">
+                        <input class="form-control me-2" name="landlord" type="search" placeholder="<?php if(isset($_GET['landlord'])) echo $search?>" aria-label="Search">
                     </form>
                 </th>
                 <th rowspan="2" class="align-middle">УНП</th>
                 <th rowspan="2" class="align-middle">Контакты арендадателя</th>
                 <th rowspan="2" class="align-middle">Объект</th>
                 <th rowspan="2" class="align-middle">
-                    <form class="d-flex" action="/search" method="post" role="search">
-                        <input class="form-control me-2" name="address" type="search" placeholder="<?php if(isset($_POST['address'])) echo $search?>" aria-label="Search">
+                    <form class="d-flex" action="./search" method="get" role="search">
+                        <input class="form-control me-2" name="address" type="search" placeholder="<?php if(isset($_GET['address'])) echo $search?>" aria-label="Search">
                     </form>
                 </th>
                 <th rowspan="2" class="align-middle">№ договора</th>
@@ -44,7 +44,7 @@
                         <td class="align-middle text-center"><?= $data["contract_start"] ?></td>
                         <td class="align-middle text-center"><?= $data["contract_end"] ?></td>
                         <td class="align-middle">
-                            <a class="btn btn-outline-success" title="Подробнее" href="/arenda?idc=<?=$data['id_contract']?>&ido=<?=$data['id_object']?>&cda=<?=$data['code_adm']?>">&#9997</a>
+                            <a class="btn btn-outline-success" title="Подробнее" href="./arenda?idc=<?=$data['id_contract']?>&ido=<?=$data['id_object']?>&cda=<?=$data['code_adm']?>">&#9997</a>
                         </td>
                     </tr>
                 <?php

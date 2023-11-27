@@ -85,7 +85,7 @@ class Router
     }
 
     public static function redirect($uri) {
-        header("Location: http://electro.gmltelecom.int" . $uri);
+        header("Location: http://localhost/ELECTRO/" . $uri);
         die();
     }
 

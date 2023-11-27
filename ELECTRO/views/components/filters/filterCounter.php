@@ -1,8 +1,11 @@
-<?php                
+<?php   
+    $rues = mysqli_query($db, "SELECT obcal.name FROM `object_code_adm_list` obcal WHERE obcal.code_adm in (select code_adm from `object` where id_object = '$id')");
+    $rues = mysqli_fetch_assoc($rues);
+    
     $object = mysqli_query($db, "SELECT `object_name` FROM `object` WHERE `id_object` = '$id'");
     $object = mysqli_fetch_assoc($object);
 ?>
-<h2 class="text-center">&#127969 <?=$object['object_name']?></h2>
+<h2 class="text-center"><?=$rues['name']?> - &#127969 <?=$object['object_name']?></h2>
 <table class="table table-striped">
     <thead>
         <tr>

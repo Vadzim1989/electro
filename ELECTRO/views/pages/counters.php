@@ -62,7 +62,7 @@ for($i = 0; $i < 12; $i++) {
     };
 };
 
-/*
+
 // коннект к БД с показаниями счетчиков
 
 $counterConn = mysqli_connect('10.245.31.5', 'counter', '@1QAZwsx', 'ctell');
@@ -111,7 +111,7 @@ if(!$_SESSION['user']['counter']){
         
     };
 };
-*/
+
 
 $query = mysqli_query($db, "SELECT obc.id_counter, obc.online, obc.transform, obc.sn, obc.counter_type, ct.name, jan.value AS jan, f.value AS feb, mar.value AS mar, apr.value AS apr, may.value AS may, jun.value AS jun, jul.value AS jul, aug.value AS aug, s.value AS sep, o.value AS oct, n.value AS nov, d.value AS december  FROM `object_counter` obc LEFT JOIN `counter_type` ct ON (obc.counter_type = ct.counter_type) LEFT JOIN `$month[0]` jan ON (jan.id_counter = obc.id_counter) LEFT JOIN `$month[1]` f ON (f.id_counter = obc.id_counter) LEFT JOIN `$month[2]` mar ON (mar.id_counter = obc.id_counter) LEFT JOIN `$month[3]` apr ON (apr.id_counter = obc.id_counter) LEFT JOIN `$month[4]` may ON (may.id_counter = obc.id_counter) LEFT JOIN `$month[5]` jun ON (jun.id_counter = obc.id_counter) LEFT JOIN `$month[6]` jul ON (jul.id_counter = obc.id_counter) LEFT JOIN `$month[7]` aug ON (aug.id_counter = obc.id_counter) LEFT JOIN `$month[8]` s ON (s.id_counter = obc.id_counter) LEFT JOIN `$month[9]` o ON (o.id_counter = obc.id_counter) LEFT JOIN `$month[10]` n ON (n.id_counter = obc.id_counter) LEFT JOIN `$month[11]` d ON (d.id_counter = obc.id_counter) WHERE obc.id_object = '$id'");
 $datas = [];
@@ -389,8 +389,12 @@ if(isset($arenda)) {
                                     $year = date('Y') - 1;
                                     $table = "counter_12".$year;
                                     $idCnt = $data['id_counter'];
-                                    $prevQeury = mysqli_query($db, "SELECT c.value FROM `$table` WHERE `id_counter` = '$idCnt'");                                    
-                                    if($prevQeury){
+                                    $prevTab = mysqli_query($db, "SHOW TABLES FROM `electro` LIKE '$table'");
+                                    $prevTab = mysqli_fetch_assoc($prevTab);
+                                    if($prevTab) {
+                                        $prevQeury = mysqli_query($db, "SELECT c.value FROM `$table` WHERE `id_counter` = '$idCnt'");
+                                    }                                                                        
+                                    if(isset($prevQeury)){
                                         $prevDec = mysqli_fetch_assoc($prevQeury);
                                         if($data['jan'] - $prevDec['value'] < 0) {
                                             echo "0";

@@ -1,6 +1,5 @@
 <?php
 use App\Services\Page;
-use App\Controllers\Data;
 
 require_once('vendor/db.php');
 

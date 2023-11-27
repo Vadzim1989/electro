@@ -1,7 +1,7 @@
 <table class="table table-striped">
 <thead>
         <tr>
-            <th rowspan="2" class="align-middle">
+            <th class="align-middle">
                 <form action="./excel/object" method="post" enctype="multipart/form-data">
                     <input type="hidden" name="code_adm" value="<?=$code_adm?>">
                     <input type="hidden" name="object_name" value="<?=$name?>">
@@ -16,28 +16,24 @@
                 </form>
                 №
             </th>
-            <th rowspan="2" class="align-middle">
+            <th class="align-middle">
                 <form class="d-flex" action="/search" method="post" role="search">
                     <input class="form-control me-2" name="object_name" type="search" placeholder="Название объекта (поиск)" aria-label="Search">
                 </form>
             </th>
-            <th rowspan="2" class="align-middle">Район</th>
-            <th rowspan="2" class="align-middle">Адрес</th>
-            <th rowspan="2" class="align-middle">Арендодатель</th>
-            <th rowspan="2" class="align-middle">Оборудование</th>
-            <th colspan="2">Емкость</th>
-            <th rowspan="2" class="align-middle">Расчетная мощность, кВт</th>
-            <th rowspan="2" class="align-middle">Расчетное потребление, кВт*ч (месячное)</th>
-            <th rowspan="2" class="align-middle">Счетчики</th>
-            <th rowspan="2" class="align-middle">Примечание</th>
-            <th rowspan="2" class="align-middle">
+            <th class="align-middle">Район</th>
+            <th class="align-middle">Адрес</th>
+            <th class="align-middle">Арендодатель</th>
+            <th class="align-middle">Оборудование</th>
+            <th class="align-middle">Емкость</th>
+            <th class="align-middle">Расчетная мощность, кВт</th>
+            <th class="align-middle">Расчетное потребление, кВт*ч (месячное)</th>
+            <th class="align-middle">Счетчики</th>
+            <th class="align-middle">Примечание</th>
+            <th class="align-middle">
                 <button type="button" title="Добавить объект" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addObject" code-adm="<?=$code_adm?>">&#10010</button>
             </th>
-            <th rowspan="2" class="align-middle"><a class="btn btn-outline-primary" title="Сбросить фильтр" href="/" onclick="load()">&#10006</a></th>
-        </tr>
-        <tr>
-            <th>монтировано</th>
-            <th>задействовано</th>
+            <th class="align-middle"><a class="btn btn-outline-primary" title="Сбросить фильтр" href="/" onclick="load()">&#10006</a></th>
         </tr>
     </thead> 
     <tbody>
@@ -81,9 +77,8 @@
                                 }
                             ?>                                
                         </td>                            
-                        <td class="align-middle"><?= $data['mount'] ?></td>
-                        <td class="align-middle"><?= $data['used'] ?></td>
-                        <td class="align-middle"><?= round($data['object_power'],3) ?></td>
+                        <td class="align-middle"><a class="btn mount_icon" href="./mount?id=<?=$data['id_object']?>">&#128736</a></td>
+                        <td class="align-middle"><?= isset($data['object_power']) ? round($data['object_power'],3) : 0 ?></td>
                         <td class="align-middle"><?= round((($data['object_power'] * 24 * cal_days_in_month(CAL_GREGORIAN, date('m'), date('y')))),3)?></td>
                         <td class="align-middle">
                             <?php
@@ -100,8 +95,18 @@
                             
                         </td>
                         <td class="align-middle remark">
-                                <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#remark" id="<?= $data['id_object'] ?>" remark="<?=$data['remark']?>" obj-name="<?=$data['object_name']?>" code_adm="<?=$data['code_adm']?>">&#128221</button>
-                            </td> 
+                            <?php
+                                if($data['remark']){
+                                    ?>
+                                        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#remark" id="<?= $data['id_object'] ?>" remark="<?=$data['remark']?>" obj-name="<?=$data['object_name']?>" code_adm="<?=$data['code_adm']?>">&#128221</button>
+                                    <?php
+                                }else{
+                                    ?>
+                                        <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#remark" id="<?= $data['id_object'] ?>" remark="<?=$data['remark']?>" obj-name="<?=$data['object_name']?>" code_adm="<?=$data['code_adm']?>">&#128221</button>
+                                    <?php
+                                }
+                            ?>                                
+                        </td>
                         <td colspan="2" class="align-middle">
                             <button type="button" title="Информация" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#updateObject" data-bs-id="<?= $data['id_object'] ?>" data-bs-name="<?= $data['object_name'] ?>" data-bs-rues="<?= $data['rues']?>" data-bs-address="<?=$data['address']?>" data-bs-mount="<?=$data['mount']?>" data-bs-used="<?=$data['used']?>" data-bs-power="<?=$data['object_power']?>">&#9997</button>
                         </td>

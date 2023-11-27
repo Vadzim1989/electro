@@ -5,6 +5,7 @@ use App\Controllers\Auth;
 use App\Controllers\Contract;
 use App\Controllers\Obj;
 use App\Controllers\Counter;
+use App\Controllers\Ports;
 use App\Controllers\Device;
 use App\Controllers\News;
 use App\Controllers\Info;
@@ -30,6 +31,7 @@ Router::page('/test', 'test');
 Router::page('/filter', 'filter');
 Router::page('/analis', 'analis');
 Router::page('/analisData', 'analisData');
+Router::page('/mount', 'mount');
 
 /**
  * Обработка POST-запросов form
@@ -63,6 +65,9 @@ Router::post('/counter/addArenda', Counter::class, 'addArenda', true);
 Router::post('/counter/deleteArenda', Counter::class, 'deleteArenda', true);
 Router::post('/counter/addArendaData', Counter::class, 'addArendaData', true);
 Router::post('/counter/deleteArendaData', Counter::class, 'deleteArendaData', true);
+
+Router::post('/ports/add', Ports::class, 'add', true);
+Router::post('/ports/delete', Ports::class, 'delete', true);
 
 Router::post('/device/add', Device::class, 'add', true);
 Router::post('/device/delete', Device::class, 'delete', true);

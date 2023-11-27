@@ -1,26 +1,22 @@
 <table class="table table-striped">
         <thead>
             <tr>
-                <th rowspan="2" class="align-middle">№</th>
-                <th rowspan="2" class="align-middle">
+                <th class="align-middle">№</th>
+                <th class="align-middle">
                     <form class="d-flex" action="./search" method="get" role="search">
                         <input class="form-control me-2" name="object_name" type="search" placeholder="<?=$search?>" aria-label="Search">
                     </form>
                 </th>
-                <th rowspan="2" class="align-middle">Район</th>
-                <th rowspan="2" class="align-middle">Адрес</th>
-                <th rowspan="2" class="align-middle">Арендодатель</th>
-                <th rowspan="2" class="align-middle">Оборудование</th>
-                <th colspan="2">Емкость</th>
-                <th rowspan="2" class="align-middle">Расчетная мощность, кВт</th>
-                <th rowspan="2" class="align-middle">Расчетное потребление, кВт*ч</th>
-                <th rowspan="2" class="align-middle">Счетчики</th>
-                <th rowspan="2" class="align-middle">Примечание</th>
-                <th rowspan="2" class="align-middle">Правки</th>
-            </tr>
-            <tr>
-                <th>монтировано</th>
-                <th>задействовано</th>
+                <th class="align-middle">Район</th>
+                <th class="align-middle">Адрес</th>
+                <th class="align-middle">Арендодатель</th>
+                <th class="align-middle">Оборудование</th>
+                <th class="align-middle">Емкость</th>
+                <th class="align-middle">Расчетная мощность, кВт</th>
+                <th class="align-middle">Расчетное потребление, кВт*ч</th>
+                <th class="align-middle">Счетчики</th>
+                <th class="align-middle">Примечание</th>
+                <th class="align-middle">Правки</th>
             </tr>
         </thead> 
         <tbody>
@@ -70,10 +66,9 @@
                                             <?php
                                         }
                                     ?>                                
-                                </td>                                
-                                <td class="align-middle text-center"><?= $data["mount"] ?></td>
-                                <td class="align-middle text-center"><?= $data["used"] ?></td>
-                                <td class="align-middle text-center"><?= round($data['object_power'],3) ?></td>
+                                </td>                          
+                                <td class="align-middle text-center"><a class="btn mount_icon" href="./mount?id=<?=$data['id_object']?>">&#128736</a></td>
+                                <td class="align-middle text-center"><?= isset($data['object_power']) ? round($data['object_power'],3) : 0 ?></td>
                                 <td class="align-middle text-center"><?= round((($data['object_power'] * 24 * cal_days_in_month(CAL_GREGORIAN, date('m'), date('y')))),3)?></td>
                                 <td class="align-middle text-center">
                                     <?php

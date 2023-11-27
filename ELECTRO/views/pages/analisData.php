@@ -49,30 +49,69 @@
                 }
             }
         }
+
+        $portDatas = [];
+        for($i = $start; $i <= $dateFrom[0] + $years; $i++) {
+            for($j = 1; $j < 13; $j++) {
+                if($j < 10) {
+                    $portDatas[] = "ports_0".$j.$i; 
+                }else {
+                    $portDatas[] = "ports_".$j.$i;
+                }
+            }
+        }
+
         $month = [];
+        $monthPort = [];
         $monthForTable = [];
+
         $tables = "";
-        $rows = "";        
+        $rows = ""; 
+        $tablesPort = '';
+        $rowsPort = '';
+
         $temp = "";
 
         $indexMonthFrom = array_search("counter_".$dateFrom[1].$dateFrom[0], $dataMonths);
         $indexMonthTo = array_search("counter_".$dateTo[1].$dateTo[0], $dataMonths);
+
         for($i = $indexMonthFrom - 1; $i <= $indexMonthTo; $i++) {
             $month[] = $dataMonths[$i];
         }
+
+        for($i = $indexMonthFrom; $i <= $indexMonthTo; $i++) {
+            $monthPort[] = $portDatas[$i];
+        }
+
         for($i = 0; $i < count($month); $i++) {
             $tables .= " LEFT JOIN `".$month[$i]."` cnt".$i." ON (cnt".$i.".id_counter = obc.id_counter)";
-        }            
+        }  
+        
+        for($i = 0; $i < count($monthPort); $i++) {
+            $tablesPort .= " LEFT JOIN `".$monthPort[$i]."` p".$i." ON (p".$i.".id_object = obj.id_object)";
+        }
+        
         for($i = 0; $i < count($month) - 1; $i++) {
             $rows .= ", (SUM(cnt".($i+1).".value) - (SUM(cnt".$i.".value))) as cnt".$i."";            
         }
+
+        $groupBy = "";
+        $by = 5;
+        for($i = 0; $i < count($monthPort); $i++) {
+            $rowsPort .= ", p".($i).".used as p".$i."";  
+            $groupBy .= ",".$by;
+            $by++;          
+        }
+
         for($i = 1; $i < count($month); $i++) {
             $tempMonth = $month[$i];
             $tempMonth = explode('_', $tempMonth);
             $monthForTable[] = $tempMonth[1];
         }
+
         $last_day = $dateTo[0]."-".$dateTo[1]."-01";
-        $query = mysqli_query($db,"SELECT DISTINCT obj.id_object, obj.object_name, obcal.name as rues, objm.used $rows FROM `object_counter` obc LEFT JOIN `counter_type` ct ON (obc.counter_type = ct.counter_type) LEFT JOIN `object` obj ON(obj.id_object = obc.id_object) $tables LEFT JOIN `object_code_adm_list` obcal ON (obj.code_adm = obcal.code_adm) LEFT JOIN `object_mount` objm ON (objm.id_object = obj.id_object) WHERE obj.object_name like '%$object_name%' AND obj.code_adm like '%$code_adm%' AND ct.counter_type = 1  group by 1,2,3,4 order by $sort");
+        $query = mysqli_query($db,"SELECT DISTINCT obj.id_object, obj.object_name, obcal.name as rues, objm.used $rowsPort $rows FROM `object_counter` obc LEFT JOIN `counter_type` ct ON (obc.counter_type = ct.counter_type) LEFT JOIN `object` obj ON(obj.id_object = obc.id_object) $tables $tablesPort LEFT JOIN `object_code_adm_list` obcal ON (obj.code_adm = obcal.code_adm) LEFT JOIN `object_mount` objm ON (objm.id_object = obj.id_object) WHERE obj.object_name like '%$object_name%' AND obj.code_adm like '%$code_adm%' AND ct.counter_type = 1  group by 1,2,3,4$groupBy order by $sort");
+
         $queryData = [];
         while($row = mysqli_fetch_assoc($query)) {
             $queryData[] = $row;
@@ -81,11 +120,7 @@
         $datas = [];
 
         foreach($queryData as $key => $data) {
-            if(is_null($data['used']) || $data['used'] == 0) {
-                continue;
-            }else{
-                $datas[] = $data;                  
-            }
+            $datas[] = $data;   
         }
         
         $arr = [];
@@ -93,17 +128,26 @@
         for($i = 0; $i < count($datas); $i++) {
             $count = 0;
             $temp = 0;
+            $tempPort = 0;
             for($j = 0; $j < count($month) - 1; $j++) {
                 if(!is_null($datas[$i]['cnt'.$j]) || $datas[$i]['cnt'.$j] != 0) {
                     $temp += $datas[$i]['cnt'.$j];
                     $count++;
                 }
             }
+            for($j = 0; $j < count($monthPort); $j++) {
+                $tempPort += $datas[$i]['p'.$j];
+            }
+            
             if($temp <= 1 || is_null($temp)) {
                 continue;
             }
             $temp = $temp/$count;
-            $arr[$i] = ['rues' => $datas[$i]['rues'], 'object_name' => $datas[$i]['object_name'], 'used' => $datas[$i]['used'], 'usedKvt' => $temp/$datas[$i]['used'], 'udel' => ($temp/$datas[$i]['used']*1000)/(24*cal_days_in_month(CAL_GREGORIAN, $dateTo[1], $dateTo[0]))];
+            $tempPort = round($tempPort/count($monthPort),2);
+            if(is_null($tempPort) || $tempPort == 0) {
+                continue;
+            }
+            $arr[$i] = ['rues' => $datas[$i]['rues'], 'object_name' => $datas[$i]['object_name'], 'used' => $tempPort, 'usedKvt' => $temp/$tempPort, 'udel' => ($temp/$tempPort*1000)/(24*cal_days_in_month(CAL_GREGORIAN, $dateTo[1], $dateTo[0]))];
             for($j = 0; $j < count($month) - 1; $j++) {
                 $arr[$i]['cnt'.$j] = $datas[$i]["cnt".$j];
             }

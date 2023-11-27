@@ -71,11 +71,11 @@ $dateDiff = date_diff(new DateTime(), new DateTime($date)) -> days;
     }
     .add_object:hover,
     .profile:hover,
-    .info-down:hover {
+    .info-down:hover,
+    .mount_icon:hover {
         transform: scale(1.1);
         transition: all .5s ease-in-out;
     }
-    
     #search {
         width: 25rem;
     }

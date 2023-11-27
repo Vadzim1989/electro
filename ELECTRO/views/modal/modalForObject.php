@@ -12,6 +12,8 @@
             <form class="mt-4" action="/object/update" method="post" enctype="multipart/form-data">    
                 <div class="modal-body">
                     <input type="hidden" class="id_object" name="id" id="id">
+                    <input type="hidden" class="form-control" id="mount" name="mount">
+                    <input type="hidden" class="form-control" id="used" name="used">
 
                     <div class="mb-2">
                         <label for="code_adm" class="form-label">Район</label>
@@ -49,17 +51,7 @@
                     <div class="mb-2">
                         <label for="address">Адрес объекта</label>
                         <input type="text" class="form-control" id="address" name="address" required>
-                    </div>
-
-                    <div class="mb-2">
-                        <label for="mount">Монтированая емкость</label>
-                        <input type="text" class="form-control" id="mount" name="mount">
-                    </div>
-
-                    <div class="mb-2">
-                        <label for="used">Задействованая емкость</label>
-                        <input type="text" class="form-control" id="used" name="used">
-                    </div>
+                    </div>                  
 
                     <div class="mb-2">
                         <label for="power">Расчетная мощность</label>
@@ -85,6 +77,10 @@
             </div>
             <form class="mt-4" action="/object/add" method="post" enctype="multipart/form-data">    
                 <div class="modal-body">
+                    <input type="hidden" class="form-control" id="mount" name="mount" value="0">
+                    <input type="hidden" class="form-control" id="used" name="used" value="0">
+                    <input type="hidden" class="form-control" id="power" name="power" value="0">
+
                     <div class="mb-2">
                         <label for="code_adm" class="form-label">Район</label>
                         <select name="code_adm" id="code_adm2" class="form-control">
@@ -121,22 +117,7 @@
                     <div class="mb-2">
                         <label for="address">Адрес объекта</label>
                         <input type="text" class="form-control" id="address" name="address" required>
-                    </div>
-
-                    <div class="mb-2">
-                        <label for="mount">Монтированая емкость</label>
-                        <input type="text" class="form-control" id="mount" name="mount" value="0">
-                    </div>
-
-                    <div class="mb-2">
-                        <label for="used">Задействованая емкость</label>
-                        <input type="text" class="form-control" id="used" name="used" value="0">
-                    </div>
-
-                    <div class="mb-2">
-                        <label for="power">Расчетная мощность</label>
-                        <input type="text" class="form-control" id="power" name="power" value="0">
-                    </div>
+                    </div>    
 
                 </div>
                 <div class="modal-footer">
